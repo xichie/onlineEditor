@@ -1,34 +1,35 @@
-<html lang="en">
+  <html lang="en">
 
-    <!-- <script src="http://cdn.bootcss.com/ace/1.2.4/ace.js"></script> -->
-    <!-- <script src="http://cdn.bootcss.com/ace/1.2.4/ext-language_tools.js"></script> -->
-    <!-- <script src="http://cdn.bootcss.com/ace/1.2.4/ext-old_ie.js"></script> -->
-    <!-- <script src="http://cdn.bootcss.com/ace/1.2.4/theme-monokai.js"></script> -->
+    <script src="http://cdn.bootcss.com/ace/1.2.4/ace.js"></script>
+    <script src="http://cdn.bootcss.com/ace/1.2.4/ext-language_tools.js"></script>
+    <script src="http://cdn.bootcss.com/ace/1.2.4/ext-old_ie.js"></script>
+    <script src="http://cdn.bootcss.com/ace/1.2.4/theme-monokai.js"></script>
     <script type="text/javascript" src="/static/js/jquery-1.8.3.js"></script>
     <script src="//cdn.bootcss.com/jquery-cookie/1.4.1/jquery.cookie.min.js"></script>
     <!-- <script type="text/javascript" src="{{ url_for('static', filename = '/js/jquery-1.8.3.js') }}"></script> -->
     <!-- <script type="text/javascript" src="//static//js/include.js"></script> -->
     <!-- set editor size -->
+    <style>
+        #editor{
+            width:1000px;
+            height:500px;
+            margin: auto;
+        }
+    </style>
+ 
 
   <head>
     <meta charset="utf-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
-    <title>Editor</title>
-    <style type="text/css" media="screen">
-      .ace_editor, .toolbar {
-          border: 1px solid lightgray;
-          margin: auto;
-          width: 100%;
-      } 
-      .ace_editor {
-          height: 200px;
-      }
-  
-    </style>  
+    <title>pyxterm.js</title>
+    <style>
+    html {
+      font-family: arial;
+    }
+    </style>
     <link rel="stylesheet" href="https://unpkg.com/xterm@3.6.0/dist/xterm.css" />
   </head>
-
   <body>  
+    
     <!-- 编辑器 -->
     <p>
       <b style="color: blue;">当前工作目录为: </b> {{cur_path}}
@@ -40,100 +41,50 @@
         <tr>
           <th>文件路径: <input type="text" id="filePath" name="path"></th>
           <th></th><input type="button" onclick="openFile()" value="打开"></th>
+          <!-- 保存文件按钮 -->
+        <th><input type="button" onclick="saveFile()" value="保存"></th>
+        <th><input type="file"></th>
         </tr>
       </form>
     </div>
+
+    <!-- shell输入框 -->
+    <!-- <div>
+      <form action="/execute" method="post">
+          shell: <input type="text" name="shell">
+          <input type="submit" value="执行"><br/>
+      </form>
+    </div> -->
     <p>
-      <b style="color: blue;">已打开的文件:</b>
+      <b style="color: blue;">已打开的文件:</b> {{file_path}}
       <b id="openPath">打开的文件</b>
     </p>
-  <script src="./static/js/ace.js"></script>
-  <!-- load ace language_tools extension -->
-  <script src="./static/js/ext-language_tools.js"></script>
-  <script src="./static/js/ext-static_highlight.js"></script>
-  <script>
-    var buildDom = require("ace/lib/dom").buildDom;
-    var editor = ace.edit();
-    editor.setOptions({
-        mode: "ace/mode/python",
-        maxLines: 30,
-        minLines: 30,
-        autoScrollEditorIntoView: true,
-        enableBasicAutocompletion: true,
-        enableSnippets: true,
-        enableLiveAutocompletion: true,
-    });
+ 
+    <div>
+      <div>
+        <!-- 编辑器 -->
+        <div id="editor" name="code">{{code}}</div>
+        <!-- <div style="vertical-align:top"></div> -->
+        <!-- 显示结果 -->
+        <!-- <div id='showWindow' style="vertical-align:top">  <textarea name="result" cols="100" rows="20" style="background-color:rgb(7, 7, 6);color:rgb(0, 255, 21);">{{result}}</textarea> </div> -->
+      </div>
+    </div>
 
-    editor.setFontSize(16);     // 编辑器文字大小
+    <!-- 定义编辑器对象-->
+    <script type="text/javascript">
+      var editor = ace.edit('editor');
+      // 设置编辑语言
+      editor.session.setMode("ace/mode/java");
 
-    var refs = {};
-    function updateToolbar() {
-        refs.saveButton.disabled = editor.session.getUndoManager().isClean();
-        refs.undoButton.disabled = !editor.session.getUndoManager().hasUndo();
-        refs.redoButton.disabled = !editor.session.getUndoManager().hasRedo();
-    }
-    editor.on("input", updateToolbar);
-    // editor.session.setValue(localStorage.savedValue || "Welcome to ace Toolbar demo!")
-    function save() {
-        localStorage.savedValue = editor.getValue(); 
-        editor.session.getUndoManager().markClean();
-        updateToolbar();
-    }
-    editor.commands.addCommand({
-        name: "save",
-        exec: save,
-        bindKey: { win: "ctrl-s", mac: "cmd-s" }
-    });
-    
-    buildDom(["div", { class: "toolbar" },
-        //  设置新建文件按钮
-        ["button", {
-            ref: "newFile",
-            onclick: function() {
-                var file_name=prompt("请输入文件的名字");
-                var code = editor.getValue();
-                file_path = $.cookie('cur_path');    // 获取当前工作路径
-                $.ajax({
-                  url:"/create",
-                  type:"post",
-                  data:{
-                    'file_path': file_path + "/" + file_name,
-                    'content': code
-                  },
-                  success:function(xhr){
-                    alert('创建成功!');
-                    $("#openPath").text(xhr['file_path']);
-                  },
-                  error:function(){
-                    alert('创建失败!');
-                  }
-                })
-            }
-        }, "新建"],
-
-        ["button", {
-            ref: "saveButton",
-            onclick: saveFile
-        }, "保存"],
-        ["button", {
-            ref: "undoButton",
-            onclick: function() {
-                editor.undo();
-            }
-        }, "撤销"],
-        ["button", {
-            ref: "redoButton",
-            onclick: function() {
-                editor.redo();
-            }
-        }, "前进"],
-
-    ], document.body, refs);
-
-    document.body.appendChild(editor.container)
-
-     // 保存编辑后的代码
-     function saveFile() {
+      editor.$blockScrolling = Infinity;
+      editor.setFontSize(16);
+      editor.setOptions({
+          enableBasicAutocompletion: true,
+          enableSnippets: true,
+          enableLiveAutocompletion: true
+      });
+      // 保存编辑后的代码
+      function saveFile() {
         // var form = document.getElementById("saveForm");
         // alert(editor.getValue());
         var code = editor.getValue();
@@ -178,7 +129,7 @@
             }
           )
         }
-        window.editor = editor;
+
     </script>
 
   <!-- 终端 -->

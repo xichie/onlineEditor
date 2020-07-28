@@ -1,2 +1,3 @@
-a.txt
- ./files//a.txt
+aaaa
+bbbb
+ddd

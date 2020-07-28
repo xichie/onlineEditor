@@ -12,8 +12,8 @@ import termios
 import struct
 import fcntl
 import shlex
-import editor
-import json
+# import editor
+# import json
 
 __version__ = "0.4.0.1"
 
@@ -104,6 +104,23 @@ def connect():
         print("task started")
 
 '''
+    新建文件
+'''
+@app.route('/create', methods=['POST'])
+def createFile():
+    file_path = request.form['file_path'] 
+    content = request.form['content']
+    with open(file_path, "w+", newline='') as f:
+        f.writelines(content)
+    data = {
+        'code': content,
+        'file_path': file_path,
+    }
+    resp = make_response(data)
+    resp.set_cookie("file_path", file_path, max_age=3600)
+    return resp
+
+'''
     打开文件并显示
 '''    
 @app.route('/open', methods=['POST'])
@@ -112,8 +129,7 @@ def showContent():
     # path = request.args.get("path")
     cur_path = request.cookies.get('cur_path') # 获取当前所在的目录
     result = request.cookies.get('result') # 获取result
-    # print(os.path.dirname(__file__))  # f:\onlineEditor
-    path = os.path.dirname(__file__) + cur_path + '/' + path # 获取到文件路径
+    path =  cur_path + '/' + path # 获取到文件路径
     # print(path + "-=--------------")
     try:
         with open(path, 'r') as f:
