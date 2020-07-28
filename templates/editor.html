@@ -1,0 +1,79 @@
+<html>
+    <script src="http://cdn.bootcss.com/ace/1.2.4/ace.js"></script>
+    <script src="http://cdn.bootcss.com/ace/1.2.4/ext-language_tools.js"></script>
+    <script src="http://cdn.bootcss.com/ace/1.2.4/ext-old_ie.js"></script>
+    <script src="http://cdn.bootcss.com/ace/1.2.4/theme-monokai.js"></script>
+    <script type="text/javascript" src="{{ url_for('static', filename = '/js/jquery-1.8.3.js') }}"></script>
+    <!-- <script type="text/javascript" src="//static//js/include.js"></script> -->
+    <style>
+        #editor{
+            width:600px;
+            height:300px;
+        }
+    </style>
+   
+
+<head>
+    <meta charset="UTF-8">
+    <title>Editer</title>
+</head>
+<body>
+    <p>
+        <b style="color: blue;">当前工作目录为: </b> {{cur_path}}
+    </p>
+
+    <div>
+        <form action="/open" method="post">
+            文件路径: <input type="text" name="path">
+            <input type="submit" value="打开"><br/>
+        </form>
+    </div>
+    <div>
+        <form action="/execute" method="post">
+            shell: <input type="text" name="shell">
+            <input type="submit" value="执行"><br/>
+        </form>
+    </div>
+    <p>
+        <b style="color: blue;">已打开的文件:</b> {{path}}
+    </p>
+    <div>
+        <form id="saveForm" action="/save" method="post">
+            <input id="contentId" name="content" type="hidden" value="">
+        </form>
+        <div id="editor" name="code" >{{code}}</div>
+        <input type="button" onclick="save()" value="保存">
+    </div>
+
+    <!-- 定义编辑器对象-->
+    <script type="text/javascript">
+        var editor = ace.edit('editor');
+        // 设置编辑语言
+        editor.session.setMode("ace/mode/java");
+
+        editor.$blockScrolling = Infinity;
+        editor.setFontSize(16);
+        editor.setOptions({
+            enableBasicAutocompletion: true,
+            enableSnippets: true,
+            enableLiveAutocompletion: true
+        });
+
+        // 保存编辑后的代码
+        function save() {
+            var form = document.getElementById("saveForm");
+            // alert(123);
+            // alert(editor.getValue());
+            $("#contentId").val(editor.getValue());
+            form.submit();
+
+        }
+
+    </script>
+    <div>
+        <textarea  name="result" cols="100%" rows="20%" style="background-color:rgb(0, 0, 0);color:rgb(0, 255, 21);">{{result}}</textarea> 
+    </div>
+
+
+</body>
+</html>

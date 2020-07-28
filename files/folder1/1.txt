@@ -1,0 +1,2 @@
+hello world11!
+./files///folder1/1.txt

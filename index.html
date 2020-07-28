@@ -1,0 +1,208 @@
+  <html lang="en">
+
+    <script src="http://cdn.bootcss.com/ace/1.2.4/ace.js"></script>
+    <script src="http://cdn.bootcss.com/ace/1.2.4/ext-language_tools.js"></script>
+    <script src="http://cdn.bootcss.com/ace/1.2.4/ext-old_ie.js"></script>
+    <script src="http://cdn.bootcss.com/ace/1.2.4/theme-monokai.js"></script>
+    <script type="text/javascript" src="/static/js/jquery-1.8.3.js"></script>
+    <script src="//cdn.bootcss.com/jquery-cookie/1.4.1/jquery.cookie.min.js"></script>
+    <!-- <script type="text/javascript" src="{{ url_for('static', filename = '/js/jquery-1.8.3.js') }}"></script> -->
+    <!-- <script type="text/javascript" src="//static//js/include.js"></script> -->
+    <style>
+        #editor{
+            width:600px;
+            height:300px;
+        }
+    </style>
+ 
+
+  <head>
+    <meta charset="utf-8">
+    <title>pyxterm.js</title>
+    <style>
+    html {
+      font-family: arial;
+    }
+    </style>
+    <link rel="stylesheet" href="https://unpkg.com/xterm@3.6.0/dist/xterm.css" />
+  </head>
+  <body>  
+    
+    <!-- 编辑器 -->
+    <p>
+      <b style="color: blue;">当前工作目录为: </b> {{cur_path}}
+    </p>
+
+    <!--打开文件  -->
+    <div>
+      <form method="post">
+        <tr>
+          <th>文件路径: <input type="text" id="filePath" name="path"></th>
+          <th></th><input type="button" onclick="openFile()" value="打开"></th>
+          <!-- 保存文件按钮 -->
+        <th><input type="button" onclick="saveFile()" value="保存"></th>
+        </tr>
+      </form>
+    </div>
+
+    <!-- shell输入框 -->
+    <!-- <div>
+      <form action="/execute" method="post">
+          shell: <input type="text" name="shell">
+          <input type="submit" value="执行"><br/>
+      </form>
+    </div> -->
+    <p>
+      <b style="color: blue;">已打开的文件:</b> {{file_path}}
+      <b id="openPath">打开的文件</b>
+    </p>
+ 
+    <div>
+      <div>
+        <!-- 编辑器 -->
+        <div id="editor" name="code">{{code}}</div>
+        <div style="vertical-align:top"></div>
+        <!-- 显示结果 -->
+        <!-- <div id='showWindow' style="vertical-align:top">  <textarea name="result" cols="100" rows="20" style="background-color:rgb(7, 7, 6);color:rgb(0, 255, 21);">{{result}}</textarea> </div> -->
+      </div>
+    </div>
+
+    <!-- 定义编辑器对象-->
+    <script type="text/javascript">
+      var editor = ace.edit('editor');
+      // 设置编辑语言
+      editor.session.setMode("ace/mode/java");
+
+      editor.$blockScrolling = Infinity;
+      editor.setFontSize(16);
+      editor.setOptions({
+          enableBasicAutocompletion: true,
+          enableSnippets: true,
+          enableLiveAutocompletion: true
+      });
+      // 保存编辑后的代码
+      function saveFile() {
+        // var form = document.getElementById("saveForm");
+        // alert(editor.getValue());
+        var code = editor.getValue();
+        file_path = $.cookie('file_path')
+        $.ajax({
+          url:"/save",
+          type:"post",
+          data:{
+            'file_path': file_path,
+            'content': code
+          },
+          success:function(xhr){
+            alert('保存成功!');
+          },
+          error:function(){
+            alert('保存失败!');
+          }
+        })
+      }
+      // ajax打开文件
+      function openFile(){
+          var file_path = String(document.getElementById("filePath").value);
+          // alert(file_path);
+          $.ajax(
+            {
+              url:"/open",
+              // dataType:"HEAD",      //服务器返回的数据类型
+              type: "post",
+              data:{
+                'path':file_path
+              },
+              success:function(xhr){
+                code =  xhr['code'];
+                code = String(code);
+                editor.setValue(code);
+                // alert(String(xhr['file_path']));
+                $("#openPath").text(xhr['file_path']);
+              },
+              error:function(){
+                alert('failed!');
+              },
+            }
+          )
+        }
+
+    </script>
+
+  <!-- 终端 -->
+  <span style="font-size: 1.4em;">pyxterm.js</span>&nbsp;&nbsp;&nbsp;
+  <span style="font-size: small;">status: <span style="font-size: small;" id="status">connecting...</span></span>
+  <div style="width: 100%; height: calc(100% - 50px);" id="terminal"></div>
+  <p style="text-align: right; font-size: small;">
+    built by <a href="https://grassfedcode.com">Chad Smith</a> <a href="https://github.com/cs01">GitHub</a>
+  </p>
+  <!-- xterm -->
+  <script src="https://unpkg.com/xterm@3.6.0/dist/xterm.js"></script>
+  <script src="https://unpkg.com/xterm@3.6.0/dist/addons/fit/fit.js"></script>
+  <script src="https://unpkg.com/xterm@3.6.0/dist/addons/webLinks/webLinks.js"></script>
+  <script src="https://unpkg.com/xterm@3.6.0/dist/addons/fullscreen/fullscreen.js"></script>
+  <script src="https://unpkg.com/xterm@3.6.0/dist/addons/search/search.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/2.1.1/socket.io.js"></script>
+  
+  <script>
+    Terminal.applyAddon(fullscreen)
+    Terminal.applyAddon(fit)
+    Terminal.applyAddon(webLinks)
+    Terminal.applyAddon(search)
+    const term = new Terminal({
+          cursorBlink: true,
+          macOptionIsMeta: true,
+          scrollback: true,
+      });
+    term.open(document.getElementById('terminal'));
+    term.fit()
+    term.resize(15, 50)
+    console.log(`size: ${term.cols} columns, ${term.rows} rows`)
+    // term.toggleFullScreen(true)
+    term.fit()
+    term.write("Welcome to pyxterm.js!\nhttps://github.com/cs01/pyxterm.js\n")
+
+
+    term.on('key', (key, ev) => {
+      console.log("pressed key", key)
+      console.log("event", ev)
+      socket.emit("pty-input", {"input": key})
+    });
+  
+    const socket = io.connect('/pty');
+    const status = document.getElementById("status")
+  
+    socket.on("pty-output", function(data){
+      console.log("new output", data)
+      term.write(data.output)
+    })
+  
+    socket.on("connect", () => {
+      fitToscreen()
+      status.innerHTML = '<span style="background-color: lightgreen;">connected</span>'
+      }
+    )
+  
+    socket.on("disconnect", () => {
+      status.innerHTML = '<span style="background-color: #ff8383;">disconnected</span>'
+    })
+  
+    function fitToscreen(){
+      term.fit()
+      socket.emit("resize", {"cols": term.cols, "rows": term.rows})
+    }
+  
+    function debounce(func, wait_ms) {
+      let timeout
+      return function(...args) {
+        const context = this
+        clearTimeout(timeout)
+        timeout = setTimeout(() => func.apply(context, args), wait_ms)
+      }
+    }
+  
+    const wait_ms = 50;
+    window.onresize = debounce(fitToscreen, wait_ms)
+  </script>
+  </body>
+  </html>
