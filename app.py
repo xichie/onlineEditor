@@ -1,4 +1,6 @@
 #!/usr/bin/env python3
+# -*- coding:utf-8 -*-
+
 import argparse
 from flask import Flask, render_template, make_response, request, Response
 from flask_socketio import SocketIO
@@ -24,7 +26,7 @@ socketio = SocketIO(app)
 
 
 '''
-    设置终端大小
+    terminal size
 '''
 def set_winsize(fd, row, col, xpix=0, ypix=0):
     winsize = struct.pack("HHHH", row, col, xpix, ypix)

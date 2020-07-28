@@ -61,7 +61,7 @@
       <div>
         <!-- 编辑器 -->
         <div id="editor" name="code">{{code}}</div>
-        <div style="vertical-align:top"></div>
+        <!-- <div style="vertical-align:top"></div> -->
         <!-- 显示结果 -->
         <!-- <div id='showWindow' style="vertical-align:top">  <textarea name="result" cols="100" rows="20" style="background-color:rgb(7, 7, 6);color:rgb(0, 255, 21);">{{result}}</textarea> </div> -->
       </div>
@@ -130,7 +130,7 @@
     </script>
 
   <!-- 终端 -->
-  <span style="font-size: 1.4em;">pyxterm.js</span>&nbsp;&nbsp;&nbsp;
+  <!-- <span style="font-size: 1.4em;">pyxterm.js</span>&nbsp;&nbsp;&nbsp; -->
   <span style="font-size: small;">status: <span style="font-size: small;" id="status">connecting...</span></span>
   <div style="width: 100%; height: calc(100% - 50px);" id="terminal"></div>
   <p style="text-align: right; font-size: small;">
@@ -156,12 +156,12 @@
       });
     term.open(document.getElementById('terminal'));
     term.fit()
-    term.resize(15, 50)
+    term.resize(15, 20)
     console.log(`size: ${term.cols} columns, ${term.rows} rows`)
     // term.toggleFullScreen(true)
     term.fit()
-    term.write("Welcome to pyxterm.js!\nhttps://github.com/cs01/pyxterm.js\n")
-
+    // term.write("Welcome to pyxterm.js!\nhttps://github.com/cs01/pyxterm.js\n")
+    term.write("connect success!\n")  
 
     term.on('key', (key, ev) => {
       console.log("pressed key", key)
