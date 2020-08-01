@@ -102,7 +102,9 @@
                   },
                   success:function(xhr){
                     alert('创建成功!');
-                    $("#openPath").text(xhr['file_path']);
+                    $("#openPath").text(xhr['file_path']); // 更新已打开的文件名
+                    editor.setValue('');    // 清空编辑器
+                    $('#filePath').val(file_name);   // 同步文件路径输入框的显示
                   },
                   error:function(){
                     alert('创建失败!');
