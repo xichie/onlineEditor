@@ -1,5 +1,5 @@
 - 环境准备
-    * 安装配置Anaconda环境
+    * python版本>=3.5 或直接安装对应版本的Anaconda环境 
     * 安装flask, flask_socketio两个包: 建议直接pip安装
     * 下载项目
 - 运行
