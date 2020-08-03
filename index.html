@@ -4,15 +4,30 @@
     <!-- <link rel="stylesheet" href="./dtree/layui/css/layui.css">
     <link rel="stylesheet" href="./dtree/layui_ext/dtree/dtree.css">
     <link rel="stylesheet" href="./dtree/layui_ext/dtree/font/dtreefont.css">
-
     <script type="text/javascript" src="./dtree/layui/layui.js"></script> -->
+    <!-- <link rel="stylesheet" href="https://unpkg.com/xterm@3.6.0/dist/xterm.css" /> -->
+    <!-- xterm -->
+    <!-- <script src="https://unpkg.com/xterm@3.6.0/dist/xterm.js"></script> -->
+    <!-- <script src="https://unpkg.com/xterm@3.6.0/dist/addons/fit/fit.js"></script>
+    <script src="https://unpkg.com/xterm@3.6.0/dist/addons/webLinks/webLinks.js"></script>
+    <script src="https://unpkg.com/xterm@3.6.0/dist/addons/fullscreen/fullscreen.js"></script>
+    <script src="https://unpkg.com/xterm@3.6.0/dist/addons/search/search.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/2.1.1/socket.io.js"></script> -->
 
+    <script src="./static/js/xterm1.js"></script>
+    <script src="./static/js/fit.js"></script>
+    <script src="./static/js/webLinks.js"></script>
+    <script src="./static/js/fullscreen.js"></script>
+    <script src="./static/js/search.js"></script>
+    <script src="./static/js/socket.io.js"></script>
+      
+
+    <link rel="stylesheet" href="./static/css/xterm.css" />
     <link rel="stylesheet" href="./static/dtree/layui/css/layui.css">
     <link rel="stylesheet" href="./static/dtree/layui_ext/dtree/dtree.css">
     <link rel="stylesheet" href="./static/dtree/layui_ext/dtree/font/dtreefont.css">
 
     <script type="text/javascript" src="./static/dtree/layui/layui.js"></script> 
-
     <script type="text/javascript" src="./static/js/jquery-1.8.3.js"></script>
     <script src="./static/js/jquery.cookie.min.js"></script>
 
@@ -25,6 +40,7 @@
         $("div.toolbar").insertBefore($("#editor"));
       })
     </script>
+    <!-- 编辑器样式 -->
     <style type="text/css" media="screen">
       .ace_editor, .toolbar {
           border: 1px solid lightgray;
@@ -32,7 +48,7 @@
           width: 100%;
       } 
       .ace_editor {
-          height: 200px;
+          height: 50px;
       }
   
     </style> 
@@ -47,16 +63,15 @@
           height:100%;
       }
   </style>
-
-    <link rel="stylesheet" href="https://unpkg.com/xterm@3.6.0/dist/xterm.css" />
+ 
   </head>
 
   <body>  
 
     <table width="100%" height="100%">
-      <!-- 表头 -->
+      <!-- 显示已打开的文件 -->
       <tr>
-          <td colspan="2" style="background-color:#FFA500;">
+          <td colspan="2" style="background-color:cornsilk;">
             <h1>
               <p>
                 <b style="color: blue;">已打开的文件:</b>
@@ -65,10 +80,10 @@
             </h1>
           </td>
       </tr>
-       
+
       <!-- 文件树和编辑器 -->
       <tr valign="top">
-          <td style="background-color:#FFD700;width:15%;" rowspan='2'>
+          <td style="background-color:#eeeeee;width:15%;" rowspan='2'>
                <!-- 文件树部分 -->
               <ul id="demoTree" class="dtree" data-id="0"></ul>     
               <div id='treeData' class="form-group" style="display: none;">{{data}}</div>   
@@ -118,17 +133,11 @@
                   });
                 })
               </script>
-            <!-- 文件树部分结束 -->
           </td>
+           <!-- 文件树部分结束 -->
+           <!-- 编辑器部分 -->
           <td style="background-color:#eeeeee;height:60%;width:400px;">
             <div id="editor"></div>
-                <!-- <form method="post">
-                  <tr>
-                    <th>文件路径: <input type="text" id="filePath" name="path"></th>
-                    <th></th><input type="button" onclick="openFile()" value="打开"></th>
-                  </tr>
-                </form>
-              </div>  -->
             <script src="./static/js/ace.js"></script>
             <!-- load ace language_tools extension -->
             <script src="./static/js/ext-language_tools.js"></script>
@@ -173,20 +182,20 @@
                       ref: "newFile",
                       onclick: function() {
                           var file_name=prompt("请输入文件的名字");
-                          var code = editor.getValue();
+                          // var code = editor.getValue();
                           file_path = $.cookie('cur_path');    // 获取当前工作路径
                           $.ajax({
                             url:"/create",
                             type:"post",
                             data:{
                               'file_path': file_path + "/" + file_name,
-                              'content': code
+                              'content': ""
                             },
                             success:function(xhr){
                               alert('创建成功!');
                               $("#openPath").text(xhr['file_path']); // 更新已打开的文件名
                               editor.setValue('');    // 清空编辑器
-                              $('#filePath').val(file_name);   // 同步文件路径输入框的显示
+                              window.location.reload();  // 刷新页面  (以后可以改为之刷新文件树部分页面)
                             },
                             error:function(){
                               alert('创建失败!');
@@ -264,6 +273,7 @@
             </script>
           </td>
       </tr>
+
       <!-- 终端 -->
       <tr>
           <td style="background-color:#eeeeee;height:40%;width:400px;">
@@ -271,17 +281,11 @@
               <!-- <span style="font-size: 1.4em;">pyxterm.js</span>&nbsp;&nbsp;&nbsp; -->
               <span style="font-size: small;">status: <span style="font-size: small;" id="status">connecting...</span></span>
               <div style="width: 100%; height: calc(100% - 50px);" id="terminal"></div>
-              <p style="text-align: right; font-size: small;">
+              <!-- <p style="text-align: right; font-size: small;">
                 built by <a href="https://grassfedcode.com">Chad Smith</a> <a href="https://github.com/cs01">GitHub</a>
-              </p>
-              <!-- xterm -->
-              <script src="https://unpkg.com/xterm@3.6.0/dist/xterm.js"></script>
-              <script src="https://unpkg.com/xterm@3.6.0/dist/addons/fit/fit.js"></script>
-              <script src="https://unpkg.com/xterm@3.6.0/dist/addons/webLinks/webLinks.js"></script>
-              <script src="https://unpkg.com/xterm@3.6.0/dist/addons/fullscreen/fullscreen.js"></script>
-              <script src="https://unpkg.com/xterm@3.6.0/dist/addons/search/search.js"></script>
-              <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/2.1.1/socket.io.js"></script>
-              
+              </p> -->
+         
+           
               <script>
                 Terminal.applyAddon(fullscreen)
                 Terminal.applyAddon(fit)
@@ -346,7 +350,6 @@
       </tr>
   </table>
 
-  
   
   </body>
   </html>

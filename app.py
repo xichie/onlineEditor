@@ -25,6 +25,7 @@ app.config["child_pid"] = None
 socketio = SocketIO(app)
 id = 2   # 文件树节点id
 
+WORK_PATH = os.getcwd()    # 末尾不能有"/"
 
 '''
     terminal size
@@ -51,17 +52,16 @@ def read_and_forward_pty_output():
 
 @app.route("/")
 def index():
-    # return render_template("index.html")
-    path = './files'
+    global WORK_PATH
     jsonData = {
         "data": [
-            {"id":"1","title": path.split('/')[-1], "parentId":"0", "children":[]},
+            {"id":"1","title": os.path.split(WORK_PATH)[1], "parentId":"0", "children":[]},
         ]
     }
-    get_pathTree(path, jsonData['data'][0]['children'], parentId='0')
+    get_pathTree(WORK_PATH, jsonData['data'][0]['children'], parentId='0')
     res_json = json.dumps(jsonData)
-    resp = make_response(render_template('index.html', cur_path='./files/', data=res_json))
-    resp.set_cookie("cur_path", './files/') # 当前所在的目录，默认为files
+    resp = make_response(render_template('index.html', cur_path=WORK_PATH, data=res_json))
+    resp.set_cookie("cur_path", WORK_PATH) # 当前所在的目录，默认为files
     return resp
 
 
@@ -135,18 +135,14 @@ def createFile():
 @app.route('/open', methods=['POST'])
 def showContent():
     path = request.form['path'] 
-    # path = request.args.get("path")
     cur_path = request.cookies.get('cur_path') # 获取当前所在的目录
     result = request.cookies.get('result') # 获取result
-    # path =  cur_path + '/' + path # 获取到文件路径(不适用文件树)
-    # print(path + "-=--------------")
     try:
         with open(path, 'r') as f:
             code = f.read()
     except:
         code = ''
         path = '未找到文件！'
-    # print(code,'=====')
     # 保存路径到cookie
     data = {
         'code': code,
@@ -201,6 +197,7 @@ def get_pathTree(path, jsonData, parentId):
             jsonData.append(node)
 
 def main():
+    global WORK_PATH
     parser = argparse.ArgumentParser(
         description=(
             "A fully functional terminal in your browser. "
@@ -208,6 +205,7 @@ def main():
         ),
         formatter_class=argparse.ArgumentDefaultsHelpFormatter,
     )
+    parser.add_argument("-w", "--workspace", default=WORK_PATH, help="workspace path")
     parser.add_argument("-p", "--port", default=2000, help="port to run server on")
     parser.add_argument("--debug", action="store_true", help="debug the server")
     parser.add_argument("--version", action="store_true", help="print version and exit")
@@ -220,6 +218,8 @@ def main():
         help="arguments to pass to command (i.e. --cmd-args='arg1 arg2 --flag')",
     )
     args = parser.parse_args()
+    
+    WORK_PATH = args.workspace
     if args.version:
         print(__version__)
         exit(0)
