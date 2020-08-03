@@ -1,0 +1,17 @@
+{
+    "shell_1":
+    {
+        "command":"python ./files/demo.py"
+    },
+
+    "shell_2":
+    {
+        "command":"ls -all"
+    },
+
+    "shell_3":
+    {
+        "command":"ls"
+    }
+    
+}

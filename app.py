@@ -196,6 +196,25 @@ def get_pathTree(path, jsonData, parentId):
             node['basicData'] = sub_path
             jsonData.append(node)
 
+"""
+    执行自定义命令
+"""
+@app.route('/execute', methods=['post'])
+def execute():
+    with open('./config.json','r',encoding='utf8')as f:
+        config = json.load(f)
+    btn_id = request.form['btn_id']   # 获取按钮id
+    shell = config[btn_id]['command']
+    result = subprocess.check_output(shell, shell=True) # 在files目录下执行shell
+    result = str(result, encoding = "GB2312")  # shell的结果解码
+   
+    return result
+ 
+@app.route('/result', methods=['get'])
+def showResult():
+    result = request.args.get("data") 
+    print(result)
+
 def main():
     global WORK_PATH
     parser = argparse.ArgumentParser(
