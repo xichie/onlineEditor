@@ -38,7 +38,11 @@
     <!-- 编辑器位置调整 -->
     <script>
       $(function(){
+        var h = $(window).height();  // 获取界面的高度
         $("div.toolbar").insertBefore($("#editor"));
+        $("#editor").height(h * 0.6);
+        $("#terminal").height(h * 0.35);
+        $("#showOpenedFile").height(h * 0.05);
       })
     </script>
     <!-- 编辑器样式 -->
@@ -63,28 +67,40 @@
           width:100%;
           height:100%;
       }
+      
+      table{
+        table-layout:fixed;/* 只有定义了表格的布局算法为fixed，下面td的定义才能起作用。 */
+      }
+      td{
+          width:100%;
+          word-break:keep-all;/* 不换行 */
+          white-space:nowrap;/* 不换行 */
+          overflow:hidden;/* 内容超出宽度时隐藏超出部分的内容 */
+          text-overflow:ellipsis;/* 当对象内文本溢出时显示省略标记(...) ；需与overflow:hidden;一起使用。*/
+      }
+
   </style>
  
   </head>
 
   <body>  
 
-    <table width="100%" height="100%">
+    <table>
       <!-- 显示已打开的文件 -->
       <tr>
-          <td colspan="2" style="background-color:cornsilk;">
-            <h1>
+          <td id='showOpenedFile' colspan="2" style="background-color:cornsilk;">
+            <h6>
               <p>
                 <b style="color: blue;">已打开的文件:</b>
                 <b id="openPath">打开的文件</b>
               </p>
-            </h1>
+            </h6>
           </td>
       </tr>
 
       <!-- 文件树和编辑器 -->
-      <tr valign="top">
-          <td style="background-color:#eeeeee;width:15%;" rowspan='2'>
+      <tr valign="top" >
+          <td style="background-color:#eeeeee; width:5%;">
                <!-- 文件树部分 -->
               <ul id="demoTree" class="dtree" data-id="0"></ul>     
               <div id='treeData' class="form-group" style="display: none;">{{data}}</div>   
@@ -138,7 +154,7 @@
           </td>
            <!-- 文件树部分结束 -->
           <!-- 编辑器部分 -->
-          <td style="background-color:#eeeeee;height:60%;width:400px;">
+          <td style="background-color:#eeeeee; width:95%;">
             <div id="editor"></div>
             <script src="./static/js/ace.js"></script>
             <!-- load ace language_tools extension -->
@@ -252,7 +268,7 @@
 
       <!-- 终端 -->
       <tr>
-          <td style="background-color:#eeeeee;height:40%;width:400px;">
+          <td style="background-color:#eeeeee;" colspan="2">
               <!-- 终端 -->
               <!-- <span style="font-size: 1.4em;">pyxterm.js</span>&nbsp;&nbsp;&nbsp; -->
               <span style="font-size: small;">status: <span style="font-size: small;" id="status">connecting...</span></span>
