@@ -13,7 +13,7 @@ import struct
 import fcntl
 import shlex
 # import editor
-# import json
+import json
 
 __version__ = "0.4.0.1"
 
@@ -23,6 +23,7 @@ app.config["fd"] = None
 # app.config["fd"] = True
 app.config["child_pid"] = None
 socketio = SocketIO(app)
+id = 2   # 文件树节点id
 
 
 '''
@@ -51,7 +52,15 @@ def read_and_forward_pty_output():
 @app.route("/")
 def index():
     # return render_template("index.html")
-    resp = make_response(render_template('index.html', cur_path='./files/'))
+    path = './files'
+    jsonData = {
+        "data": [
+            {"id":"1","title": path.split('/')[-1], "parentId":"0", "children":[]},
+        ]
+    }
+    get_pathTree(path, jsonData['data'][0]['children'], parentId='0')
+    res_json = json.dumps(jsonData)
+    resp = make_response(render_template('index.html', cur_path='./files/', data=res_json))
     resp.set_cookie("cur_path", './files/') # 当前所在的目录，默认为files
     return resp
 
@@ -129,7 +138,7 @@ def showContent():
     # path = request.args.get("path")
     cur_path = request.cookies.get('cur_path') # 获取当前所在的目录
     result = request.cookies.get('result') # 获取result
-    path =  cur_path + '/' + path # 获取到文件路径
+    # path =  cur_path + '/' + path # 获取到文件路径(不适用文件树)
     # print(path + "-=--------------")
     try:
         with open(path, 'r') as f:
@@ -169,28 +178,27 @@ def saveContent():
     return resp
 
 '''
-    执行shell命令
-@app.route('/execute', methods=['POST'])   
-def execute():
-    content = request.cookies.get('content')  # 获取文件的内容
-    path = request.cookies.get('path1') # 获取文件路径
-    shell = request.form['shell']  # 获取shell命令
-    cur_path = request.cookies.get('cur_path') # 获取当前所在的目录
-    
-    if 'cd' in shell.split(' ')[0]:         # 如果shell命令为cd，则切换当前目录
-        if shell.split(' ')[-1] == '.':
-            cur_path = '/'.join(cur_path.split('/')[:-1])
-        else:
-            cur_path +=  shell.split(' ')[-1].strip() + '/'  
-        result = '当前目录为：' + cur_path
-    else:
-        result = subprocess.check_output(shell, cwd=cur_path, shell=True) # 在files目录下执行shell
-        result = str(result, encoding = "GB2312")  # shell的结果解码
-    resp = make_response(render_template('index.html', code=content, path=path, result=result, cur_path=cur_path)) 
-    resp.set_cookie("result", result)
-    resp.set_cookie("cur_path", cur_path)
-    return resp        
+    获取指定目录下的文件树json数据
 '''
+def get_pathTree(path, jsonData, parentId):
+    global id
+    paths = os.listdir(path)
+    for i, item in enumerate(paths):
+        sub_path = os.path.join(path, item)
+        # 创建节点
+        node = {
+            'id': id,
+            "title": item,
+            "parentId": parentId,
+            "children": [],
+        }
+        id += 1
+        if os.path.isdir(sub_path): # 如果是子目录，则添加子目录节点，递归遍历该节点下的文件和目录
+            jsonData.append(node)
+            get_pathTree(sub_path, node['children'], node['id'])
+        else:                                   # 如果是文件，则直接添加文件节点
+            node['basicData'] = sub_path
+            jsonData.append(node)
 
 def main():
     parser = argparse.ArgumentParser(
@@ -218,7 +226,6 @@ def main():
     print("serving on http://127.0.0.1:{args.port}")
     app.config["cmd"] = [args.command] + shlex.split(args.cmd_args)
     socketio.run(app, host='0.0.0.0', debug=args.debug, port=args.port)
-
-
+    
 if __name__ == "__main__":
     main()
