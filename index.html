@@ -123,7 +123,8 @@
                                 $("#openPath").text(xhr['file_path']);
                               },
                               error:function(){
-                                alert('failed!');
+                                // 点击文件夹不做任何事
+                                // alert('failed!');
                               },
                             }
 
@@ -136,7 +137,7 @@
               </script>
           </td>
            <!-- 文件树部分结束 -->
-           <!-- 编辑器部分 -->
+          <!-- 编辑器部分 -->
           <td style="background-color:#eeeeee;height:60%;width:400px;">
             <div id="editor"></div>
             <script src="./static/js/ace.js"></script>
@@ -246,6 +247,7 @@
               // window.editor = editor;
             </script>
           </td>
+          <!-- 编辑器部分结束 -->
       </tr>
 
       <!-- 终端 -->
