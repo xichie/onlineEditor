@@ -35,6 +35,7 @@
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
     <title>Editor</title>
+    <!-- 编辑器位置调整 -->
     <script>
       $(function(){
         $("div.toolbar").insertBefore($("#editor"));
@@ -225,8 +226,6 @@
               // document.body.appendChild(editor.container)
               // 保存编辑后的代码
               function saveFile() {
-                // var form = document.getElementById("saveForm");
-                // alert(editor.getValue());
                 var code = editor.getValue();
                 file_path = $.cookie('file_path')
                 $.ajax({
@@ -244,31 +243,6 @@
                   }
                 })
               }
-              // ajax打开文件
-              function openFile(){
-                    var file_path = String(document.getElementById("filePath").value);
-                    // alert(file_path);
-                    $.ajax(
-                      {
-                        url:"/open",
-                        // dataType:"HEAD",      //服务器返回的数据类型
-                        type: "post",
-                        data:{
-                          'path':file_path
-                        },
-                        success:function(xhr){
-                          code =  xhr['code'];
-                          code = String(code);
-                          editor.setValue(code);
-                          // alert(String(xhr['file_path']));
-                          $("#openPath").text(xhr['file_path']);
-                        },
-                        error:function(){
-                          alert('failed!');
-                        },
-                      }
-                    )
-                  }
               // window.editor = editor;
             </script>
           </td>
