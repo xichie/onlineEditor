@@ -1,7 +1,7 @@
 - 环境准备
     * 安装配置Anaconda环境
-    * pip install flask
-    * 下载app.py和static两个文件
+    * 安装flask, flask_socketio两个包: 建议直接pip安装
+    * 下载项目
 - 运行
     * python app.py [-w 工作目录]
     * 工作目录末尾不要带"/"或其它符号
