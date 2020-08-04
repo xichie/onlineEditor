@@ -103,8 +103,11 @@
         <!-- 文件树部分 -->
           <td style="background-color:#eeeeee; width:5%;" rowspan="2">
                <!-- 文件树部分 -->
-              <ul id="demoTree" class="dtree" data-id="0"></ul>     
-              <div id='treeData' class="form-group" style="display: none;">{{data}}</div> 
+               <!--treeDiv设置滚动条  -->
+              <div id="treeDiv" style="height: 666px; overflow: auto;">   
+                <ul id="demoTree" class="dtree" data-id="0"></ul>
+              </div>     
+              <div id='treeData' class="form-group" style="display: none;">{{data}}</div>  
               <script>
                 $(function(){
                 var data = $('#treeData').text();
@@ -116,9 +119,11 @@
                     
                     // 初始化树
                     var DemoTree = dtree.render({
-                      elem: "#demoTree",
+                      elem: "#demoTree",   // 树元素id
                       data: jsData.data, // 使用url加载（可与data加载同时存在）
-                      initLevel:1         // 默认不展开文件树
+                      initLevel:1,        // 默认不展开文件树
+                      scroll:"#treeDiv",
+                      toolbar:true
                     });
                     
                     dtree.on("node('demoTree')" ,function(obj){
