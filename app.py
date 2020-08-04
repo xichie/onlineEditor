@@ -173,12 +173,19 @@ def saveContent():
     resp = make_response(data)
     return resp
 
+
+'''
+    该方法可以令文件树优先显示文件夹
+'''
+def getFileNames(path):
+    for (root, dirs, files) in os.walk(path):
+        return dirs + files
 '''
     获取指定目录下的文件树json数据
 '''
 def get_pathTree(path, jsonData, parentId):
     global id
-    paths = os.listdir(path)
+    paths = getFileNames(path)    # 优先显示文件夹
     for i, item in enumerate(paths):
         sub_path = os.path.join(path, item)
         # 创建节点
@@ -209,12 +216,20 @@ def execute():
     result = str(result, encoding = "GB2312")  # shell的结果解码
    
     return result
- 
-@app.route('/result', methods=['get'])
-def showResult():
-    result = request.args.get("data") 
-    print(result)
 
+'''
+    显示自定义命令的执行结果
+''' 
+@app.route('/result', methods=['post'])
+def showResult():
+    form = dict(request.form)
+    result = form['result']
+    resp = make_response(render_template('result.html', result=result))
+    return resp
+
+'''
+    程序入口函数
+'''
 def main():
     global WORK_PATH
     parser = argparse.ArgumentParser(

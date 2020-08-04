@@ -39,10 +39,10 @@
     <script>
       $(function(){
         var h = $(window).height();  // 获取界面的高度
-        $("div.toolbar").insertBefore($("#editor"));
-        $("#editor").height(h * 0.6);
-        $("#terminal").height(h * 0.35);
-        $("#showOpenedFile").height(h * 0.05);
+        $("div.toolbar").insertBefore($("#editor"));    // 将toolbar部分放到editor部分前显示
+        // $("#editor").height(h * 0.6);
+        // $("#terminal").height(h * 0.35);
+        // $("#showOpenedFile").height(h * 0.05);
       })
     </script>
     <!-- 编辑器样式 -->
@@ -79,7 +79,7 @@
           text-overflow:ellipsis;/* 当对象内文本溢出时显示省略标记(...) ；需与overflow:hidden;一起使用。*/
       }
 
-  </style>
+    </style>
  
   </head>
 
@@ -100,10 +100,11 @@
 
       <!-- 文件树和编辑器 -->
       <tr valign="top" >
-          <td style="background-color:#eeeeee; width:5%;">
+        <!-- 文件树部分 -->
+          <td style="background-color:#eeeeee; width:5%;" rowspan="2">
                <!-- 文件树部分 -->
               <ul id="demoTree" class="dtree" data-id="0"></ul>     
-              <div id='treeData' class="form-group" style="display: none;">{{data}}</div>   
+              <div id='treeData' class="form-group" style="display: none;">{{data}}</div> 
               <script>
                 $(function(){
                 var data = $('#treeData').text();
@@ -117,6 +118,7 @@
                     var DemoTree = dtree.render({
                       elem: "#demoTree",
                       data: jsData.data, // 使用url加载（可与data加载同时存在）
+                      initLevel:1         // 默认不展开文件树
                     });
                     
                     dtree.on("node('demoTree')" ,function(obj){
@@ -193,7 +195,7 @@
                   exec: save,
                   bindKey: { win: "ctrl-s", mac: "cmd-s" }
               });
-              
+        
               buildDom(["div", { class: "toolbar"},
                   //  设置新建文件按钮
                   ["button", {
@@ -250,10 +252,8 @@
                               'content': "",
                               'btn_id': "shell_1",     // 要执行命令的key，在config中配置
                             },
-                            success:function(result){
-                              alert('执行成功!');
-                              alert(result);
-                              term.write(result);
+                            success: function(result){
+                              showResult(result);
                             },
                             error:function(){
                               alert('执行成功!');
@@ -272,19 +272,18 @@
                             data:{
                               'file_path': file_path,
                               'content': "",
-                              'btn_id': "shell_2",
+                              'btn_id': "shell_2",   // 必须唯一
                             },
-                            success:function(result){
-                              alert('执行成功!');
-                              alert(result);
-                              // term.write(result);
+                            success: function(result){
+                              showResult(result);
                             },
                             error:function(){
-                              alert('执行成功!');
+                              alert('执行异常!');
                             }
                           })
                       }
                   }, "自定义命令2"],
+                  // *******************在这里添加执行自定义命令的按钮，注意btn_id必须和config.json中的对应*******************
           
               ], document.body, refs);  
               // document.body.appendChild(editor.container)
@@ -312,8 +311,8 @@
           </td>
           <!-- 编辑器部分结束 -->
       </tr>
-
-      <!-- 终端 -->
+      
+      <!-- 终端部分 -->
       <tr>
           <td style="background-color:#eeeeee;" colspan="2">
               <!-- 终端 -->
@@ -387,7 +386,27 @@
               </script>
           </td>
       </tr>
+      <!-- 终端部分结束 -->
   </table>
+
+  <!-- 自定义命令按钮执行后，通过下面的代码展示执行结果 -->
+  <script>
+          function showResult(result){
+            // alert('执行成功!');
+            var httpRequest = new XMLHttpRequest();
+            httpRequest.open('POST', '/result', true); 
+            httpRequest.setRequestHeader("Content-type","application/x-www-form-urlencoded");
+            httpRequest.send('result='+result);
+            //获取数据后的处理程序
+            httpRequest.onreadystatechange = function () {//请求后的回调接口，可将请求成功后要执行的程序写在其中
+                if (httpRequest.readyState == 4 && httpRequest.status == 200) {//验证请求是否发送成功
+                    var data = httpRequest.responseText;//获取到服务端返回的数据
+                    myWindow=window.open('','');
+                    myWindow.document.write(data);
+                }
+            };
+          }
+  </script>
 
   
   </body>
