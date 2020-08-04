@@ -127,8 +127,6 @@
                     });
                     
                     dtree.on("node('demoTree')" ,function(obj){
-                            // layer.msg(JSON.stringify(obj.param));
-                            //  alert(obj.param.basicData);  
                             var file_path = obj.param.basicData;  // 获取节点对应的文件路径
                             $.ajax(
                             {
@@ -146,8 +144,7 @@
                                 $("#openPath").text(xhr['file_path']);
                               },
                               error:function(){
-                                // 点击文件夹不做任何事
-                                // alert('failed!');
+                                  // 叶子节点什么都不做
                               },
                             }
 
