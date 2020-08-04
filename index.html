@@ -40,9 +40,9 @@
       $(function(){
         var h = $(window).height();  // 获取界面的高度
         $("div.toolbar").insertBefore($("#editor"));    // 将toolbar部分放到editor部分前显示
-        // $("#editor").height(h * 0.6);
-        // $("#terminal").height(h * 0.35);
-        // $("#showOpenedFile").height(h * 0.05);
+        $("#editor").height(h * 0.6);
+        $("#terminal").height(h * 0.3);
+        $("#showOpenedFile").height(h * 0.03);
       })
     </script>
     <!-- 编辑器样式 -->
@@ -158,7 +158,7 @@
           </td>
            <!-- 文件树部分结束 -->
           <!-- 编辑器部分 -->
-          <td style="background-color:#eeeeee; width:95%;">
+          <td style="background-color:#eeeeee; height:20%;">
             <div id="editor"></div>
             <script src="./static/js/ace.js"></script>
             <!-- load ace language_tools extension -->
