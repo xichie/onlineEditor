@@ -186,6 +186,7 @@ def getFileNames(path):
 def get_pathTree(path, jsonData, parentId):
     global id
     paths = getFileNames(path)    # 优先显示文件夹
+    # print(paths)
     for i, item in enumerate(paths):
         sub_path = os.path.join(path, item)
         # 创建节点
@@ -202,6 +203,7 @@ def get_pathTree(path, jsonData, parentId):
         else:                                   # 如果是文件，则直接添加文件节点
             node['basicData'] = sub_path
             jsonData.append(node)
+
 
 """
     执行自定义命令
