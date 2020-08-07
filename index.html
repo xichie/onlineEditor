@@ -158,7 +158,7 @@
           </td>
            <!-- 文件树部分结束 -->
           <!-- 编辑器部分 -->
-          <td style="background-color:#eeeeee; height:20%;">
+          <td style="background-color:#eeeeee;">
             <div id="editor"></div>
             <script src="./static/js/ace.js"></script>
             <!-- load ace language_tools extension -->
@@ -169,8 +169,8 @@
               var editor = ace.edit("editor");
               editor.setOptions({
                   mode: "ace/mode/python",
-                  maxLines: 30,
-                  minLines: 30,
+                  maxLines: 20,
+                  minLines: 20,
                   autoScrollEditorIntoView: true,
                   enableBasicAutocompletion: true,
                   enableSnippets: true,
@@ -280,7 +280,7 @@
                               showResult(result);
                             },
                             error:function(){
-                              alert('执行异常!');
+                              alert('没有返回值或执行异常!');
                             }
                           })
                       }
