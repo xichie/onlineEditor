@@ -2,7 +2,7 @@
 # -*- coding:utf-8 -*-
 
 import argparse
-from flask import Flask, render_template, make_response, request, Response
+from flask import Flask, render_template, make_response, request, Response, jsonify
 from flask_socketio import SocketIO
 import pty
 import os
@@ -12,7 +12,6 @@ import termios
 import struct
 import fcntl
 import shlex
-# import editor
 import json
 
 __version__ = "0.4.0.1"
@@ -49,7 +48,6 @@ def read_and_forward_pty_output():
                 #print(  output   )
                 socketio.emit("pty-output", {"output": output}, namespace="/pty")
 
-
 @app.route("/")
 def index():
     global WORK_PATH
@@ -60,7 +58,7 @@ def index():
     }
     get_pathTree(WORK_PATH, jsonData['data'][0]['children'], parentId='0')
     res_json = json.dumps(jsonData)
-    resp = make_response(render_template('index.html', cur_path=WORK_PATH, data=res_json))
+    resp = make_response(render_template('index2.html', cur_path=WORK_PATH, data=res_json))
     resp.set_cookie("cur_path", WORK_PATH) # 当前所在的目录，默认为files
     return resp
 
@@ -73,7 +71,7 @@ def pty_input(data):
     if app.config["fd"]:
         print("writing to ptd: %s" % data["input"])
         #print(app.config["fd"])
-        #os.write(app.config["fd"], 'ls\n'.encode() )
+        # os.write(app.config["fd"], 'ls\n'.encode() )
         os.write(app.config["fd"], data["input"].encode())
 
 
@@ -118,6 +116,8 @@ def connect():
 @app.route('/create', methods=['POST'])
 def createFile():
     file_path = request.form['file_path'] 
+    if(file_path is None or file_path.strip() == ''):
+        print(file_path)
     content = request.form['content']
     with open(file_path, "w+", newline='') as f:
         f.writelines(content)
@@ -216,6 +216,7 @@ def execute():
     shell = config[btn_id]['command']
     result = subprocess.check_output(shell, shell=True) # 在files目录下执行shell
     result = str(result, encoding = "GB2312")  # shell的结果解码
+    os.write(app.config["fd"], shell.encode() )
    
     return result
 
