@@ -1,0 +1,449 @@
+<html lang="en">
+
+    <!-- <script type="text/javascript" src="/static/js/jquery-1.8.3.js"></script> -->
+    <!-- <link rel="stylesheet" href="./dtree/layui/css/layui.css">
+    <link rel="stylesheet" href="./dtree/layui_ext/dtree/dtree.css">
+    <link rel="stylesheet" href="./dtree/layui_ext/dtree/font/dtreefont.css">
+    <script type="text/javascript" src="./dtree/layui/layui.js"></script> -->
+    <!-- <link rel="stylesheet" href="https://unpkg.com/xterm@3.6.0/dist/xterm.css" /> -->
+    <!-- xterm -->
+    <!-- <script src="https://unpkg.com/xterm@3.6.0/dist/xterm.js"></script> -->
+    <!-- <script src="https://unpkg.com/xterm@3.6.0/dist/addons/fit/fit.js"></script>
+    <script src="https://unpkg.com/xterm@3.6.0/dist/addons/webLinks/webLinks.js"></script>
+    <script src="https://unpkg.com/xterm@3.6.0/dist/addons/fullscreen/fullscreen.js"></script>
+    <script src="https://unpkg.com/xterm@3.6.0/dist/addons/search/search.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/2.1.1/socket.io.js"></script> -->
+
+    <script src="./static/js/xterm1.js"></script>
+    <script src="./static/js/fit.js"></script>
+    <script src="./static/js/webLinks.js"></script>
+    <script src="./static/js/fullscreen.js"></script>
+    <script src="./static/js/search.js"></script>
+    <script src="./static/js/socket.io.js"></script>
+      
+
+    <link rel="stylesheet" href="./static/css/xterm.css" />
+    <link rel="stylesheet" href="./static/dtree/layui/css/layui.css">
+    <link rel="stylesheet" href="./static/dtree/layui_ext/dtree/dtree.css">
+    <link rel="stylesheet" href="./static/dtree/layui_ext/dtree/font/dtreefont.css">
+
+    <script type="text/javascript" src="./static/dtree/layui/layui.js"></script> 
+    <script type="text/javascript" src="./static/js/jquery-1.8.3.js"></script>
+    <script src="./static/js/jquery.cookie.min.js"></script>
+
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <title>Editor</title>
+    <!-- 编辑器位置调整 -->
+    <script>
+      $(function(){
+            $("#editor").insertAfter($(".toolbar"));    // 将toolbar部分放到editor部分前显示
+            // str = '\n';
+            // for(i=0; i < 20 ; i++){
+            //     str+= '\n'
+            // }
+            // editor.setValue(str);
+            $("#top").css('width', "100%");
+            $("#top").css('height', "3%");
+
+            $("#treeDiv").css("float","left");
+            $("#treeDiv").css("width","20%");
+            $("#treeDiv").css("height","97%");
+
+            $('div.toolbar').css("float","left");
+            $('div.toolbar').css("width","79%");
+            $('div.toolbar').css("height","5%");
+
+            $('#editor').css("float","left");
+            $('#editor').css("width","79%");
+            $('#editor').css("height","50%");
+
+
+            $("#terminal").css("float","left");
+            $("#terminal").css("width","79%");
+            $("#terminal").css("height","40%");
+      })
+      $(window).resize(function(){
+        $("#editor").insertAfter($(".toolbar"));    // 将toolbar部分放到editor部分前显示
+        // str = '\n';
+        // for(i=0; i < 20 ; i++){
+        //     str+= '\n'
+        // }
+        // editor.setValue(str);
+        $("#top").css('width', "100%");
+        $("#top").css('height', "3%");
+
+        $("#treeDiv").css("float","left");
+        $("#treeDiv").css("width","20%");
+        $("#treeDiv").css("height","97%");
+
+        $('div.toolbar').css("float","left");
+        $('div.toolbar').css("width","79%");
+        $('div.toolbar').css("height","5%");
+
+        $('#editor').css("float","left");
+        $('#editor').css("width","79%");
+        $('#editor').css("height","50%");
+    
+
+        $("#terminal").css("float","left");
+        $("#terminal").css("width","79%");
+        $("#terminal").css("height","40%");
+      })
+     
+    </script>
+    <!-- 编辑器样式 -->
+    <style type="text/css" media="screen">
+      .ace_editor, .toolbar {
+          border: 1px solid lightgray;
+          margin: auto;
+          width: 100%;
+      } 
+
+  
+    </style> 
+    <!-- 表格布局 -->
+    <style type="text/css">
+      * {
+          padding:0px;
+          margin:0px;
+      }
+      html, body { 
+          width:100%;
+          height:100%;
+      }
+      
+      table{
+        table-layout:fixed;/* 只有定义了表格的布局算法为fixed，下面td的定义才能起作用。 */
+      }
+      td{
+          width:100%;
+          word-break:keep-all;/* 不换行 */
+          white-space:nowrap;/* 不换行 */
+          overflow:hidden;/* 内容超出宽度时隐藏超出部分的内容 */
+          text-overflow:ellipsis;/* 当对象内文本溢出时显示省略标记(...) ；需与overflow:hidden;一起使用。*/
+      }
+
+    </style>
+ 
+  </head>
+
+  <body>  
+
+    <!-- 显示已打开的文件 -->
+    <div id="top">
+        <h6>
+            <p>
+                <b style="color: blue;">已打开的文件:</b>
+                <b id="openPath">打开的文件</b>
+            </p>
+        </h6>
+    </div>
+    <!-- 文件树和编辑器 -->
+
+    <!-- 文件树部分 -->
+    <!--treeDiv设置滚动条  -->
+    <div id="treeDiv" style="overflow: auto;">   
+    <ul id="demoTree" class="dtree" data-id="0"></ul>
+    </div>     
+    <!-- 文件树对应的数据 隐藏域 -->
+    <div id='treeData' class="form-group" style="display: none;">{{data}}</div>     
+    <script>
+    $(function(){
+    var data = $('#treeData').text();
+    var jsData = $.parseJSON( data );
+    layui.extend({
+        dtree: '{/}layui_ext/dtree/dtree'   // {/}的意思即代表采用自有路径，即不跟随 base 路径
+        }).use(['dtree','layer','jquery'], function(){
+        var dtree = layui.dtree, layer = layui.layer, $ = layui.jquery;
+        
+        // 初始化树
+        var DemoTree = dtree.render({
+            elem: "#demoTree",   // 树元素id
+            data: jsData.data, // 使用url加载（可与data加载同时存在）
+            initLevel:1,        // 默认不展开文件树
+            scroll:"#treeDiv",
+            toolbar:true
+        });
+        
+        dtree.on("node('demoTree')" ,function(obj){
+                var file_path = obj.param.basicData;  // 获取节点对应的文件路径
+                $.ajax(
+                {
+                    url:"/open",
+                    // dataType:"HEAD",      //服务器返回的数据类型
+                    type: "post",
+                    data:{
+                    'path':file_path
+                    },
+                    success:function(xhr){
+                    code =  xhr['code'];
+                    code = String(code);
+                    editor.setValue(code);
+                    // alert(String(xhr['file_path']));
+                    $("#openPath").text(xhr['file_path']);
+                    },
+                    error:function(){
+                        // 叶子节点什么都不做
+                    },
+                }
+
+                )
+
+        });
+
+        });
+    })
+    </script>
+          
+    <!-- 文件树部分结束 -->
+    <!-- 编辑器部分 -->
+    <div id="editor" ></div>
+    <script src="./static/js/ace.js"></script>
+    <!-- load ace language_tools extension -->
+    <script src="./static/js/ext-language_tools.js"></script>
+    <script src="./static/js/ext-static_highlight.js"></script>
+    <script>
+        var buildDom = require("ace/lib/dom").buildDom;
+        var editor = ace.edit("editor");
+        editor.setOptions({
+            mode: "ace/mode/python",
+            maxLines: 20,
+            minLines: 10,
+            autoScrollEditorIntoView: true,
+            enableBasicAutocompletion: true,
+            enableSnippets: true,
+            enableLiveAutocompletion: true,
+        });
+    
+        editor.setFontSize(16);     // 编辑器文字大小
+    
+        var refs = {};
+        function updateToolbar() {
+            refs.saveButton.disabled = editor.session.getUndoManager().isClean();
+            refs.undoButton.disabled = !editor.session.getUndoManager().hasUndo();
+            refs.redoButton.disabled = !editor.session.getUndoManager().hasRedo();
+        }
+        editor.on("input", updateToolbar);
+        // editor.session.setValue(localStorage.savedValue || "Welcome to ace Toolbar demo!")
+        function save() {
+            localStorage.savedValue = editor.getValue(); 
+            editor.session.getUndoManager().markClean();
+            updateToolbar();
+        }
+        editor.commands.addCommand({
+            name: "save",
+            exec: save,
+            bindKey: { win: "ctrl-s", mac: "cmd-s" }
+        });
+
+        buildDom(["div", { class: "toolbar"},
+            //  设置新建文件按钮
+            ["button", {
+                ref: "newFile",
+                onclick: function() {
+                    var file_name=prompt("请输入文件的名字");
+                    file_name = file_name.replace(/^\s+|\s+$/g,"");
+                    file_path = $.cookie('cur_path');    // 获取当前工作路径
+                    if(file_name == null && file_name == ''){
+                        return;
+                    }
+                    $.ajax({
+                    url:"/create",
+                    type:"post",
+                    data:{
+                        'file_path': file_path + "/" + file_name,
+                        'content': ""
+                    },
+                    success:function(xhr){
+                        alert('创建成功!');
+                        $("#openPath").text(xhr['file_path']); // 更新已打开的文件名
+                        editor.setValue('');    // 清空编辑器
+                        window.location.reload();  // 刷新页面  (以后可以改为之刷新文件树部分页面)
+                    },
+                    error:function(){
+                        alert('创建失败!');
+                    }
+                    })
+                }
+            }, "新建"],
+    
+            ["button", {
+                ref: "saveButton",
+                onclick: saveFile
+            }, "保存"],
+            ["button", {
+                ref: "undoButton",
+                onclick: function() {
+                    editor.undo();
+                }
+            }, "撤销"],
+            ["button", {
+                ref: "redoButton",
+                onclick: function() {
+                    editor.redo();
+                }
+            }, "前进"],
+            ["button", {
+                ref: "mybtn",
+                onclick: function() {
+                file_path = $.cookie('file_path') // 获取当前打开文件路径
+                $.ajax({
+                    url:"/execute",
+                    type:"post",
+                    data:{
+                        'file_path': file_path,
+                        'content': "",
+                        'btn_id': "shell_1",     // 要执行命令的key，在config中配置
+                    },
+                    success: function(result){
+                        // term.write("\n");
+                        // term.write(result);
+                        showResult(result);
+                    },
+                    error:function(){
+                        alert('执行成功!');
+                    }
+                    })
+                }
+            }, "自定义命令1"],
+
+            ["button", {
+                ref: "mybtn2",
+                onclick: function() {
+                file_path = $.cookie('file_path') // 获取当前打开文件路径
+                $.ajax({
+                    url:"/execute",
+                    type:"post",
+                    data:{
+                        'file_path': file_path,
+                        'content': "",
+                        'btn_id': "shell_2",   // 必须唯一
+                    },
+                    success: function(result){
+                        // term.write("\n");
+                        // term.write(result);
+                        showResult(result);
+                    },
+                    error:function(){
+                        alert('没有返回值或执行异常!');
+                    }
+                    })
+                }
+            }, "自定义命令2"],
+            // *******************在这里添加执行自定义命令的按钮，注意btn_id必须和config.json中的对应*******************
+    
+        ], document.body, refs);  
+        // document.body.appendChild(editor.container)
+        // 保存编辑后的代码
+        function saveFile() {
+        var code = editor.getValue();
+        file_path = $.cookie('file_path')
+        $.ajax({
+            url:"/save",
+            type:"post",
+            data:{
+            'file_path': file_path,
+            'content': code
+            },
+            success:function(xhr){
+            alert('保存成功!');
+            },
+            error:function(){
+            alert('保存失败!');
+            }
+        })
+        }
+        // window.editor = editor;
+    </script>
+    <!-- 编辑器部分结束 -->
+    
+    <!-- 终端部分 -->
+    <!-- <span style="font-size: 1.4em;">pyxterm.js</span>&nbsp;&nbsp;&nbsp; -->
+    <span id="statusSpan" style="font-size: small; display: none;">status: <span style="font-size: small;" id="status">connecting...</span></span>
+    <div id="terminal"></div>
+    <script>
+    Terminal.applyAddon(fullscreen)
+    Terminal.applyAddon(fit)
+    Terminal.applyAddon(webLinks)
+    Terminal.applyAddon(search)
+    const term = new Terminal({
+            cursorBlink: true,
+            macOptionIsMeta: true,
+            scrollback: true,
+        });
+    term.open(document.getElementById('terminal'));
+    term.fit()
+    term.resize(15, 20)
+    console.log(`size: ${term.cols} columns, ${term.rows} rows`)
+    // term.toggleFullScreen(true)
+    term.fit()
+    // term.write("Welcome to pyxterm.js!\nhttps://github.com/cs01/pyxterm.js\n")
+    term.write("connect success!\n")  
+
+    term.on('key', (key, ev) => {
+        console.log("pressed key", key)
+        console.log("event", ev)
+        socket.emit("pty-input", {"input": key})
+    });
+    
+    const socket = io.connect('/pty');
+    const status = document.getElementById("status")
+    
+    socket.on("pty-output", function(data){
+        console.log("new output", data)
+        term.write(data.output)
+    })
+    
+    socket.on("connect", () => {
+        fitToscreen()
+        status.innerHTML = '<span style="background-color: lightgreen;">connected</span>'
+        }
+    )
+    
+    socket.on("disconnect", () => {
+        status.innerHTML = '<span style="background-color: #ff8383;">disconnected</span>'
+    })
+    
+    function fitToscreen(){
+        term.fit()
+        socket.emit("resize", {"cols": term.cols, "rows": term.rows})
+    }
+    
+    function debounce(func, wait_ms) {
+        let timeout
+        return function(...args) {
+        const context = this
+        clearTimeout(timeout)
+        timeout = setTimeout(() => func.apply(context, args), wait_ms)
+        }
+    }
+    
+    const wait_ms = 50;
+    window.onresize = debounce(fitToscreen, wait_ms);
+    </script>
+      <!-- 终端部分结束 -->
+ 
+  <!-- 自定义命令按钮执行后，通过下面的代码展示执行结果 -->
+  <script>
+          function showResult(result){
+            // alert('执行成功!');
+            var httpRequest = new XMLHttpRequest();
+            httpRequest.open('POST', '/result', true); 
+            httpRequest.setRequestHeader("Content-type","application/x-www-form-urlencoded");
+            httpRequest.send('result='+result);
+            //获取数据后的处理程序
+            httpRequest.onreadystatechange = function () {//请求后的回调接口，可将请求成功后要执行的程序写在其中
+                if (httpRequest.readyState == 4 && httpRequest.status == 200) {//验证请求是否发送成功
+                    var data = httpRequest.responseText;//获取到服务端返回的数据
+                    myWindow=window.open('','');
+                    myWindow.document.write(data);
+                }
+            };
+          }
+  </script>
+
+  
+  </body>
+  </html>
