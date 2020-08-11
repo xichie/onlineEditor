@@ -242,7 +242,7 @@ def main():
         ),
         formatter_class=argparse.ArgumentDefaultsHelpFormatter,
     )
-    parser.add_argument("-w", "--workspace", default=WORK_PATH, help="workspace path")
+    parser.add_argument("-w", "--workspace", default=WORK_PATH, help="workspace path, dont end with \'\\' or other character, defalut is your current path ")
     parser.add_argument("-p", "--port", default=2000, help="port to run server on")
     parser.add_argument("--debug", action="store_true", help="debug the server")
     parser.add_argument("--version", action="store_true", help="print version and exit")
@@ -260,9 +260,9 @@ def main():
     if args.version:
         print(__version__)
         exit(0)
-    print("serving on http://127.0.0.1:{args.port}")
+    print("serving on http://127.0.0.1:" + args.port)
     app.config["cmd"] = [args.command] + shlex.split(args.cmd_args)
-    socketio.run(app, host='0.0.0.0', debug=args.debug, port=args.port)
+    socketio.run(app, host='0.0.0.0', debug=args.debug, port=int(args.port))
     
 if __name__ == "__main__":
     main()
