@@ -1,15 +1,15 @@
 {
-    "shell_1":
+    "1":
     {
         "command":"python ./files/demo.py \n"
     },
 
-    "shell_2":
+    "2":
     {
         "command":"ls -all \n"
     },
 
-    "shell_3":
+    "3":
     {
         "command":"ls \n"
     }

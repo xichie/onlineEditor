@@ -23,7 +23,9 @@
     <!-- 编辑器位置调整 -->
     <script>
       $(function(){
+            
             $("#editor").insertAfter($(".toolbar"));    // 将toolbar部分放到editor部分前显示
+            $(".drag").insertAfter($("#editor")); 
             $("#top").css('width', "100%");
             $("#top").css('height', "3%");
 
@@ -33,43 +35,17 @@
 
             $('div.toolbar').css("float","left");
             $('div.toolbar').css("width","79%");
-            $('div.toolbar').css("height","5%");
+            $('div.toolbar').css("height","4%");
 
+            // $('#editor').css("max-width", "79%");
             $('#editor').css("float","left");
             $('#editor').css("width","79%");
-            $('#editor').css("height","50%");
+            $('#editor').css("height","50%");       // 编辑器的高度设置
 
-
+            // $('#terminal').css("max-height", "90%");
             $("#terminal").css("float","left");
             $("#terminal").css("width","79%");
             $("#terminal").css("height","40%");
-      })
-      $(window).resize(function(){
-        $("#editor").insertAfter($(".toolbar"));    // 将toolbar部分放到editor部分前显示
-        // str = '\n';
-        // for(i=0; i < 20 ; i++){
-        //     str+= '\n'
-        // }
-        // editor.setValue(str);
-        $("#top").css('width', "100%");
-        $("#top").css('height', "3%");
-
-        $("#treeDiv").css("float","left");
-        $("#treeDiv").css("width","20%");
-        $("#treeDiv").css("height","97%");
-
-        $('div.toolbar').css("float","left");
-        $('div.toolbar').css("width","79%");
-        $('div.toolbar').css("height","5%");
-
-        $('#editor').css("float","left");
-        $('#editor').css("width","79%");
-        $('#editor').css("height","50%");
-    
-
-        $("#terminal").css("float","left");
-        $("#terminal").css("width","79%");
-        $("#terminal").css("height","40%");
       })
      
     </script>
@@ -79,50 +55,12 @@
         position: relative !important;
         border: 1px solid lightgray;
         margin: auto;
-        height: 50%;
+        height: 50%;          /*必须设置并且要和40行左右的编辑器高度设置一致，否则内容会显示不完整*/       
         /* width: 80%; */
     }
-    .ace_editor.fullScreen {
-        height: auto;
-        width: auto;
-        border: 0;
-        margin: 0;
-        position: fixed !important;
-        top: 0;
-        bottom: 0;
-        left: 0;
-        right: 0;
-        z-index: 10;
-    }
-
-  
     </style> 
-    <!-- 表格布局 -->
-    <style type="text/css">
-      * {
-          padding:0px;
-          margin:0px;
-      }
-      html, body { 
-          width:100%;
-          height:100%;
-      }
-      
-      table{
-        table-layout:fixed;/* 只有定义了表格的布局算法为fixed，下面td的定义才能起作用。 */
-      }
-      td{
-          width:100%;
-          word-break:keep-all;/* 不换行 */
-          white-space:nowrap;/* 不换行 */
-          overflow:hidden;/* 内容超出宽度时隐藏超出部分的内容 */
-          text-overflow:ellipsis;/* 当对象内文本溢出时显示省略标记(...) ；需与overflow:hidden;一起使用。*/
-      }
-
-    </style>
- 
   </head>
-  
+
   <body>  
 
     <!-- 显示已打开的文件 -->
@@ -189,13 +127,13 @@
 
         });
     })
-    </script>
-          
+    </script>       
     <!-- 文件树部分结束 -->
     <!-- 编辑器部分 -->
     <div id="editor" ></div>
     <script src="./static/js/ace.js"></script>
     <!-- load ace language_tools extension -->
+    <script src="./static/js/ext-themelist.js"></script>
     <script src="./static/js/ext-language_tools.js"></script>
     <script src="./static/js/ext-static_highlight.js"></script>
     <script>
@@ -203,17 +141,13 @@
         var editor = ace.edit("editor");
         editor.setOptions({
             mode: "ace/mode/python",
-            // maxLines: 10,
-            // minLines: 10,
             autoScrollEditorIntoView: true,
             enableBasicAutocompletion: true,
-            // enableSnippets: true,
-            // enableLiveAutocompletion: true,
+            enableSnippets: true,
         });
-    
+
+        // editor.setTheme("ace/theme/twilight");
         editor.setFontSize(16);     // 编辑器文字大小
-        editor.renderer.setScrollMargin(10, 10);
-    
         var refs = {};
         function updateToolbar() {
             refs.saveButton.disabled = editor.session.getUndoManager().isClean();
@@ -232,7 +166,6 @@
             exec: save,
             bindKey: { win: "ctrl-s", mac: "cmd-s" }
         });
-
         buildDom(["div", { class: "toolbar"},
             //  设置新建文件按钮
             ["button", {
@@ -280,57 +213,37 @@
                     editor.redo();
                 }
             }, "前进"],
-            ["button", {
-                ref: "mybtn",
-                onclick: function() {
-                file_path = $.cookie('file_path') // 获取当前打开文件路径
-                $.ajax({
-                    url:"/execute",
-                    type:"post",
-                    data:{
-                        'file_path': file_path,
-                        'content': "",
-                        'btn_id': "shell_1",     // 要执行命令的key，在config中配置
-                    },
-                    success: function(result){
-                        // term.write("\n");
-                        // term.write(result);
-                        showResult(result);
-                    },
-                    error:function(){
-                        alert('执行成功!');
-                    }
-                    })
-                }
-            }, "自定义命令1"],
+            ["select", {id:"myselect"},
+                ["option",{style:"display:none" ,value:"default"},  "自定义命令"],  
+                ["option", "命令1"],
+                ["option", "命令2"],
+                ["option", "命令3"],
+                // *******************在这里添加执行自定义命令的按钮*******************
 
-            ["button", {
-                ref: "mybtn2",
-                onclick: function() {
-                file_path = $.cookie('file_path') // 获取当前打开文件路径
-                $.ajax({
-                    url:"/execute",
-                    type:"post",
-                    data:{
-                        'file_path': file_path,
-                        'content': "",
-                        'btn_id': "shell_2",   // 必须唯一
-                    },
-                    success: function(result){
-                        // term.write("\n");
-                        // term.write(result);
-                        showResult(result);
-                    },
-                    error:function(){
-                        alert('没有返回值或执行异常!');
-                    }
-                    })
-                }
-            }, "自定义命令2"],
-            // *******************在这里添加执行自定义命令的按钮，注意btn_id必须和config.json中的对应*******************
-    
+            ],
         ], document.body, refs);  
-        // document.body.appendChild(editor.container)
+        // 下拉菜单按钮点击事件
+        $("#myselect").change(function(){
+            var opt=$("#myselect");
+            btn_id = opt.get(0).selectedIndex;      // 获取选择option的索引值，从1开始
+            file_path = $.cookie('file_path') // 获取当前打开文件路径
+            $.ajax({
+                url:"/execute",
+                type:"post",
+                data:{
+                    'file_path': file_path,
+                    'content': "",
+                    'btn_id': btn_id,   // 必须唯一
+                },
+                success: function(result){
+                    showResult(result);
+                },
+                error:function(){
+                    alert('没有返回值或执行异常!');
+                }
+            });
+            $("#myselect").val("default");   // 设置select显示为默认值
+        });
         // 保存编辑后的代码
         function saveFile() {
         var code = editor.getValue();
@@ -439,6 +352,7 @@
           }
   </script>
 
-  
+    <!-- div拖动 -->
+
   </body>
   </html>
