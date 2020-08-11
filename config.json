@@ -1,6 +1,9 @@
+
 {
+    "description": "命令的末尾必须带换行符，编号递增与index2.html中的按钮一一对应",
+
     "1":
-    {
+    {   
         "command":"python ./files/demo.py \n"
     },
 

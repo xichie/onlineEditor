@@ -71,7 +71,7 @@ def pty_input(data):
     if app.config["fd"]:
         print("writing to ptd: %s" % data["input"])
         #print(app.config["fd"])
-        # os.write(app.config["fd"], 'ls\n'.encode() )
+        # os.write(app.config["fd"], 'ls\n'.encode() )     # 本行代码可以再webshell里运行ls命令
         os.write(app.config["fd"], data["input"].encode())
 
 
@@ -210,14 +210,13 @@ def get_pathTree(path, jsonData, parentId):
 """
 @app.route('/execute', methods=['post'])
 def execute():
-    with open('./config.json','r',encoding='utf8')as f:
-        config = json.load(f)
+    with open('./config.json','r',encoding='utf8')as f:  # 加载json配置文件
+        config = json.load(f)                 
     btn_id = request.form['btn_id']   # 获取按钮id
-    shell = config[btn_id]['command']
-    result = subprocess.check_output(shell, shell=True) # 在files目录下执行shell
+    shell = config[btn_id]['command']  # 根据id找到对应的命令
+    result = subprocess.check_output(shell, shell=True) # 执行shell， 默认为当前的工作目录
     result = str(result, encoding = "GB2312")  # shell的结果解码
-    os.write(app.config["fd"], shell.encode() )
-   
+    os.write(app.config["fd"], shell.encode())   # 在webshell中执行命令，并展示结果
     return result
 
 '''
