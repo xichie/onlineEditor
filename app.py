@@ -254,7 +254,6 @@ def main():
         help="arguments to pass to command (i.e. --cmd-args='arg1 arg2 --flag')",
     )
     args = parser.parse_args()
-    
     WORK_PATH = args.workspace
     if args.version:
         print(__version__)
