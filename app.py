@@ -214,6 +214,16 @@ def execute():
         config = json.load(f)                 
     btn_id = request.form['btn_id']   # 获取按钮id
     shell = config[btn_id]['command']  # 根据id找到对应的命令
+    if(btn_id == '3'):
+        return '3'
+    elif(btn_id == '4'):
+        # subprocess.run(shell, shell=True)
+        os.write(app.config["fd"], shell.encode())
+        return '4'
+    elif(btn_id == '5'):
+        # subprocess.run(shell, shell=True)
+        os.write(app.config["fd"], shell.encode())
+        return '5'
     result = subprocess.check_output(shell, shell=True) # 执行shell， 默认为当前的工作目录
     result = str(result, encoding = "GB2312")  # shell的结果解码
     os.write(app.config["fd"], shell.encode())   # 在webshell中执行命令，并展示结果

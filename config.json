@@ -14,7 +14,22 @@
 
     "3":
     {
-        "command":"ls \n"
+        "description": "跳转到fpowertool index.html",
+        "command":"3" 
+    },
+
+    "4":
+    {
+        "command":"python ./fpowertool/tools/genPerfStp.py ./abcdef/app.funcount 200 \n"
+    },
+
+    "5":
+    {
+        "command":"sh ./fpowertool/perfProfiling.sh ./abcdef/a.out happy_buddha.obj -automove -nthreads 1 -frames 3 -res 960 540 \n"
+    },
+    "6":
+    {
+        "command": "sudo stap -v /home/gwei/fpowertool/tools/functioncount.stp 'process('/home/warm/onlineEditor/abcdef/abc').function('*')' -c '/home/warm/onlineEditor/abcdef/abc  happy_buddha.obj -automove -nthreads 1 -frames 3 -res 960 540' -o app.funcount"
     }
     
 }

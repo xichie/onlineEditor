@@ -1,0 +1,74 @@
+#! /usr/bin/env stap
+
+#probe perf.sw.cpu_clock!, timer.profile {
+#probe perf.sw.cpu_clock!, $1.function("z_solve_").call {
+#probe perf.sw.cpu_clock!, $1.function("z_solve_").return {
+#probe perf.hw.cache_misses!, $1.function("*"){#.return {
+#probe perf.hw.cache_misses.$1.counter("cache_misses"), $1.function("*"){
+probe perf.hw.cache_misses.$1.counter("cache_misses"){}
+probe $1.function("main*").call{
+  // NB: To avoid contention on SMP machines, no global scalars/arrays used,
+  // only contention-free statistics aggregates.
+  tid=tid(); e=execname();ppfunc=ppfunc();
+  if (!user_mode())
+    kticks[e,tid] <<< 1
+  else
+    uticks[e,tid] <<< 1
+  ticks <<< 1
+  tids[e,ppfunc,tid] <<< 1
+  cm[ppfunc,tid,1] = @perf("cache_misses")
+printf ("c %d  %d\n",tid,@perf("cache_misses"))
+
+}
+probe $1.function("main*").return{
+  tid=tid(); e=execname();ppfunc=ppfunc();
+  if (!user_mode())
+    kticks[e,tid] <<< 1
+  else
+    uticks[e,tid] <<< 1
+  ticks <<< 1
+  tids[e,ppfunc,tid] <<< 1
+#tmp= @count(cc)+(@perf("cache_misses")-cm[ppfunc,tid,1] )  
+#cc = cc +  (@perf("cache_misses")-cm[ppfunc,tid,1] )
+cc[ppfunc] = cc[ppfunc] +  (@perf("cache_misses")-cm[ppfunc,tid,1] )
+printf ("r %d  %d\n",tid,@perf("cache_misses"))
+}
+
+
+
+
+global uticks%, kticks%, ticks
+
+global tids%, cm%, cc #=0
+
+probe  end {
+  allticks = @count(ticks)
+  #printf("cc:%d\n", cc) #@count(cc) )
+  
+foreach([ppfunc] in cc ){
+
+  printf("%s :%d\n", ppfunc, cc[ppfunc]) #@count(cc) )
+}
+printf ("%16s %5s %7s %7s (of %d ticks)\n",
+          "comm", "tid", "%user", "%kernel", allticks)
+  foreach ([e,ppfunc,tid] in tids- limit 20) {
+    // SystemTap only performs integer arithmetic.
+    // To avoid losing precision the decimal point is shifted
+    // to the right four places (*100000). Think of this as
+    // the original result value x.xxyy becoming xxxyy.0.
+    // The integer percentage xxx is obtained
+    // by dividing by 100 and the fractional percentage
+    // is obtained with a modulo 100 operation.
+    uscaled = @count(uticks[e,tid])*10000/allticks
+    kscaled = @count(kticks[e,tid])*10000/allticks
+    printf ("%16s %16s %5d %3d.%02d%% %3d.%02d%%\n",
+      e, ppfunc, tid, uscaled/100, uscaled%100, kscaled/100, kscaled%100)
+  }
+  printf("\n")
+
+  delete uticks
+  delete kticks
+  delete ticks
+  delete tids
+}
+

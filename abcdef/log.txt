@@ -1,0 +1,6 @@
+c 124002  4255
+r 124002  17818719
+main :17814464
+            comm   tid   %user %kernel (of 2 ticks)
+             abc             main 124002 100.00%   0.00%
+

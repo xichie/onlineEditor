@@ -1,0 +1,14 @@
+maine 1
+_init 1
+_start 1
+frame_dummy 1
+maind 1
+_fini 1
+__do_global_ctors_aux 1
+maina 1
+mainf 1
+__libc_csu_init 1
+__do_global_dtors_aux 1
+main 1
+mainb 1
+mainc 1

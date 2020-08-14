@@ -217,7 +217,9 @@
                 ["option",{style:"display:none" ,value:"default"},  "自定义命令"],  
                 ["option", "命令1"],
                 ["option", "命令2"],
-                ["option", "命令3"],
+                ["option", "显示结果"],
+                ["option", "Generate_Stp"],
+                ["option", "Profile"],
                 // *******************在这里添加执行自定义命令的按钮*******************
             ],
         ], document.body, refs);  
@@ -235,7 +237,12 @@
                     'btn_id': btn_id,   // 必须唯一
                 },
                 success: function(result){
-                    showResult(result);   // 得到执行结果跳转
+                    if(result == '3'){
+                        myWindow=window.open('http://127.0.0.1:8000','');
+                    }
+                    else{
+                        showResult(result);   // 得到执行结果跳转
+                    }
                 },
                 error:function(){
                     alert('没有返回值或执行异常!');
@@ -349,6 +356,7 @@
                 }
             };
           }
+
   </script>
 
     <!-- div拖动 -->
