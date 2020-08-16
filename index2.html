@@ -82,53 +82,52 @@
     <!-- 文件树对应的数据 隐藏域 -->
     <div id='treeData' class="form-group" style="display: none;">{{data}}</div>     
     <script>
-    $(function(){
-    var data = $('#treeData').text();
-    var jsData = $.parseJSON( data );
-    layui.extend({
-        dtree: '{/}layui_ext/dtree/dtree'   // {/}的意思即代表采用自有路径，即不跟随 base 路径
-        }).use(['dtree','layer','jquery'], function(){
-        var dtree = layui.dtree, layer = layui.layer, $ = layui.jquery;
-        
-        // 初始化树
-        var DemoTree = dtree.render({
-            elem: "#demoTree",   // 树元素id
-            data: jsData.data, // 使用url加载（可与data加载同时存在）
-            initLevel:1,        // 默认不展开文件树
-            scroll:"#treeDiv",
-            toolbar:true
-        });
-        
-        dtree.on("node('demoTree')" ,function(obj){
-                var file_path = obj.param.basicData;  // 获取节点对应的文件路径
-                $.ajax(
-                {
-                    url:"/open",
-                    // dataType:"HEAD",      //服务器返回的数据类型
-                    type: "post",
-                    data:{
-                    'path':file_path
-                    },
-                    success:function(xhr){
-                    code =  xhr['code'];
-                    code = String(code);
-                    editor.setValue(code);
-                    // alert(String(xhr['file_path']));
-                    $("#openPath").text(xhr['file_path']);
-                    },
-                    error:function(){
-                        // 叶子节点什么都不做
-                    },
-                }
+        function initTree(){
+            var data = $('#treeData').text();
+            var jsData = $.parseJSON( data );
+            layui.extend({
+            dtree: '{/}layui_ext/dtree/dtree'   // {/}的意思即代表采用自有路径，即不跟随 base 路径
+            }).use(['dtree','layer','jquery'], function(){
+                var dtree = layui.dtree, layer = layui.layer, $ = layui.jquery;
+                // 初始化树
+                var DemoTree = dtree.render({
+                    elem: "#demoTree",   // 树元素id
+                    data: jsData.data, // 使用url加载（可与data加载同时存在）
+                    initLevel:1,        // 默认不展开文件树
+                    scroll:"#treeDiv",
+                    toolbar:true
+                });
+                dtree.on("node('demoTree')" ,function(obj){
+                        var file_path = obj.param.basicData;  // 获取节点对应的文件路径
+                        $.ajax(
+                        {
+                            url:"/open",
+                            // dataType:"HEAD",      //服务器返回的数据类型
+                            type: "post",
+                            data:{
+                            'path':file_path
+                            },
+                            success:function(xhr){
+                            code =  xhr['code'];
+                            code = String(code);
+                            editor.setValue(code);
+                            // alert(String(xhr['file_path']));
+                            $("#openPath").text(xhr['file_path']);
+                            },
+                            error:function(){
+                                // 叶子节点什么都不做
+                            },
+                        }
 
-                )
+                        )
 
-        });
-
-        });
-    })
+                });
+            });
+        };
+        $(initTree);
     </script>       
     <!-- 文件树部分结束 -->
+
     <!-- 编辑器部分 -->
     <div id="editor" ></div>
     <script src="./static/js/ace.js"></script>
@@ -188,6 +187,7 @@
                         alert('创建成功!');
                         $("#openPath").text(xhr['file_path']); // 更新已打开的文件名
                         editor.setValue('');    // 清空编辑器
+                        // $(initTree);
                         window.location.reload();  // 刷新页面  (以后可以改为之刷新文件树部分页面)
                     },
                     error:function(){
@@ -196,32 +196,51 @@
                     })
                 }
             }, "新建"],
-    
+            // 保存按钮
             ["button", {
                 ref: "saveButton",
                 onclick: saveFile
             }, "保存"],
+            // 撤销按钮
             ["button", {
                 ref: "undoButton",
                 onclick: function() {
                     editor.undo();
                 }
             }, "撤销"],
+            // 前进按钮
             ["button", {
                 ref: "redoButton",
                 onclick: function() {
                     editor.redo();
                 }
             }, "前进"],
+            // 关闭当前文件按钮
+            ["button", {
+                ref: "close",
+                onclick: function() {
+                    $.cookie('file_path', ""); 
+                    $("#openPath").text("");
+                    editor.setValue("");
+                }
+            }, "关闭"],
+            // 下拉菜单
             ["select", {id:"myselect"},
                 ["option",{style:"display:none" ,value:"default"},  "自定义命令"],  
                 ["option", "命令1"],
                 ["option", "命令2"],
-                ["option", "显示结果"],
-                ["option", "Generate_Stp"],
-                ["option", "Profile"],
+                ["option", "Perf1"],
+                ["option", "Perf2"],
+                ["option", "Perf2"],
                 // *******************在这里添加执行自定义命令的按钮*******************
             ],
+            // 显示结果
+            ["button", {
+                ref: "showPerfResult",
+                onclick: function() {
+                    myWindow=window.open('http://127.0.0.1:8000/perftreegrid.html?file=treegridPerfData20200701.0026','');  // 打开显示结果页面
+                }
+            }, "显示Perf结果"],
         ], document.body, refs);  
         // 下拉菜单按钮点击事件
         $("#myselect").change(function(){
@@ -237,15 +256,12 @@
                     'btn_id': btn_id,   // 必须唯一
                 },
                 success: function(result){
-                    if(result == '3'){
-                        myWindow=window.open('http://127.0.0.1:8000','');
-                    }
-                    else{
-                        showResult(result);   // 得到执行结果跳转
-                    }
+                    // showResult(result);   // 得到执行结果跳转
+                    alert(result);
                 },
                 error:function(){
-                    alert('没有返回值或执行异常!');
+                    // alert('没有返回值或执行异常!');
+                    alert(result);
                 }
             });
             $("#myselect").val("default");   // 设置select显示为默认值
