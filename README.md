@@ -3,7 +3,7 @@
     * 安装flask, flask_socketio两个包: 建议直接pip安装
     * 下载项目
 - 运行
-    * python app.py [-w 工作目录]
+    * python start.py [-w 工作目录]    // by 2020/8/16
     * 工作目录末尾不要带"/"或其它符号
     * 浏览器访问127.0.0.1:2000
 - 功能
