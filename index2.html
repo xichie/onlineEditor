@@ -224,6 +224,31 @@
                     editor.setValue("");
                 }
             }, "关闭"],
+            // 配置按钮
+            ["button", {
+                ref: "config",
+                onclick: function(){
+                    $.ajax(
+                    {
+                        url:"/open",
+                        // dataType:"HEAD",      //服务器返回的数据类型
+                        type: "post",
+                        data:{
+                            'path':"config.json"
+                        },
+                        success:function(xhr){
+                            code =  xhr['code'];
+                            code = String(code);
+                            editor.setValue(code);
+                            $("#openPath").text(xhr['file_path']);
+                        },
+                        error:function(){
+                            // 配置文件打开出错
+                            alert("找不到配置文件！");
+                        },
+                    })
+                }
+            }, "配置"],
             // 下拉菜单
             ["select", {id:"myselect"},
                 ["option",{style:"display:none" ,value:"default"},  "自定义命令"],  
@@ -231,7 +256,7 @@
                 ["option", "命令2"],
                 ["option", "Perf1"],
                 ["option", "Perf2"],
-                ["option", "Perf2"],
+                ["option", "Perf3"],
                 // *******************在这里添加执行自定义命令的按钮*******************
             ],
             // 显示结果
@@ -290,7 +315,6 @@
     <!-- 编辑器部分结束 -->
     
     <!-- 终端部分 -->
-    <!-- <span style="font-size: 1.4em;">pyxterm.js</span>&nbsp;&nbsp;&nbsp; -->
     <span id="statusSpan" style="font-size: small; display: none;">status: <span style="font-size: small;" id="status">connecting...</span></span>
     <div id="terminal"></div>
     <script>

@@ -1,6 +1,6 @@
 
 {
-    "description": "命令的末尾必须带换行符，编号递增与index2.html中的按钮一一对应",
+    "description": "命令的末尾必须带换行符，编号递增与index2.html中的按钮对应",
 
     "1":
     {   
@@ -9,7 +9,7 @@
 
     "2":
     {
-        "command":"ls -all \n"
+        "command":"ls -l \n"
     },
 
     "3":
