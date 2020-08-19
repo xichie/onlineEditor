@@ -2,7 +2,7 @@
 # -*- coding:utf-8 -*-
 
 import argparse
-from flask import Flask, render_template, make_response, request, Response, jsonify
+from flask import Flask, render_template, make_response, request, Response, jsonify, session
 from flask_socketio import SocketIO
 import pty
 import os
@@ -58,8 +58,14 @@ def index():
     }
     get_pathTree(WORK_PATH, jsonData['data'][0]['children'], parentId='0')
     res_json = json.dumps(jsonData)
-    resp = make_response(render_template('index2.html', cur_path=WORK_PATH, data=res_json))
+    try:
+        btn_val = get_btn_value()   # 获取按钮的名称
+    except:
+        resp = make_response(render_template('index2.html', cur_path=WORK_PATH, data=res_json, error="配置错误!"))
+        return resp
+    resp = make_response(render_template('index2.html', cur_path=WORK_PATH, data=res_json, btn_vals=",".join(btn_val)))
     resp.set_cookie("cur_path", WORK_PATH) # 当前所在的目录，默认为files
+    # resp.set_cookie("btn_val", ",".join(btn_val))
     return resp
 
 
@@ -173,7 +179,6 @@ def saveContent():
     resp = make_response(data)
     return resp
 
-
 '''
     该方法可以令文件树优先显示文件夹
 '''
@@ -212,7 +217,8 @@ def get_pathTree(path, jsonData, parentId):
 def execute():
     try:
         with open('./config.json','r',encoding='utf8')as f:  # 加载json配置文件
-            config = json.load(f)                 
+            config = json.load(f)  
+        config = config['options']               
         btn_id = request.form['btn_id']   # 获取按钮id
         shell = config[btn_id]['command']  # 根据id找到对应的命令
         # result = subprocess.check_output(shell, shell=True) # 执行shell， 默认为当前的工作目录
@@ -231,6 +237,23 @@ def showResult():
     result = form['result']
     resp = make_response(render_template('result.html', result=result))
     return resp
+
+'''
+    获取配置文件信息：按钮名称
+'''
+def get_btn_value():
+    with open('./config.json','r',encoding='utf-8')as f:  # 加载json配置文件
+        config = json.load(f)
+    config = dict(config["options"])
+    values = []
+    for key in config.keys():
+        values.append(config[key]['value'])
+    return values
+
+
+   
+
+
 
 '''
     程序入口函数

@@ -23,7 +23,6 @@
     <!-- 编辑器位置调整 -->
     <script>
       $(function(){
-            
             $("#editor").insertAfter($(".toolbar"));    // 将toolbar部分放到editor部分前显示
             $(".drag").insertAfter($("#editor")); 
             $("#top").css('width', "100%");
@@ -46,8 +45,8 @@
             $("#terminal").css("float","left");
             $("#terminal").css("width","79%");
             $("#terminal").css("height","40%");
+            load_btn();  // 动态加载按钮
       })
-     
     </script>
     <!-- 编辑器样式 -->
     <style type="text/css" media="screen">
@@ -252,11 +251,11 @@
             // 下拉菜单
             ["select", {id:"myselect"},
                 ["option",{style:"display:none" ,value:"default"},  "自定义命令"],  
-                ["option", "命令1"],
-                ["option", "命令2"],
-                ["option", "Perf1"],
-                ["option", "Perf2"],
-                ["option", "Perf3"],
+                // ["option", "命令1"],
+                // ["option", "命令2"],
+                // ["option", "Perf1"],
+                // ["option", "Perf2"],
+                // ["option", "Perf3"],
                 // *******************在这里添加执行自定义命令的按钮*******************
             ],
             // 显示结果
@@ -399,7 +398,29 @@
 
   </script>
 
-    <!-- div拖动 -->
+    <!-- 动态菜单 -->
+    <!-- 隐藏域数据 -->
+    <div id='btn_vals' class="form-group" style="display: none;">{{btn_vals}}</div>
+    <div id='error' class="form-group" style="display: none;">{{error}}</div>   
+    <script>
+        function load_btn(){
+            //可以用cookie或session从后台获取配置文件中的数据，目前只需要option的名称
+            // var btn_vals = unescape($.cookie("btn_val"));
+            var error = $("#error").text();
+            if(error != ""){
+                alert(error);
+            }
+            var btn_vals = $("#btn_vals").text();
+            // alert(btn_vals);
+            var btn_array = btn_vals.split(",");
+            var myselect =document.getElementById("myselect");
+            for(var i = 0; i < btn_array.length; i++){
+                var option =document.createElement("option");
+                option.innerHTML=btn_array[i];
+                myselect.appendChild(option);
+            }
+        };
+    </script>
 
   </body>
   </html>
