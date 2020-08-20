@@ -4,7 +4,7 @@
     {
         "value": "按钮名称",
         "command": "要执行的命令, 末尾必须带换行符",
-        "":""
+        "自定义key":"自定义value"
     },
     "options": {
         "1":
@@ -22,8 +22,15 @@
         "3":
         {
             "value": "自定义命令3",
-            "command":"ls -all \n"
+            "command":"ls -l \n"
+        },
+        
+        "4":
+        {
+            "value": "自定义命令4",
+            "command":"fpowertool/web.sh \n"
         }
+        
     }
     
 }

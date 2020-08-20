@@ -59,7 +59,6 @@
     }
     </style> 
   </head>
-
   <body>  
 
     <!-- 显示已打开的文件 -->
@@ -378,25 +377,25 @@
     </script>
       <!-- 终端部分结束 -->
  
-  <!-- 自定义命令按钮执行后，通过下面的代码展示执行结果 -->
-  <script>
-          function showResult(result){
-            // alert('执行成功!');
-            var httpRequest = new XMLHttpRequest();
-            httpRequest.open('POST', '/result', true); 
-            httpRequest.setRequestHeader("Content-type","application/x-www-form-urlencoded");
-            httpRequest.send('result='+result);
-            //获取数据后的处理程序
-            httpRequest.onreadystatechange = function () {//请求后的回调接口，可将请求成功后要执行的程序写在其中
-                if (httpRequest.readyState == 4 && httpRequest.status == 200) {//验证请求是否发送成功
-                    var data = httpRequest.responseText;//获取到服务端返回的数据
-                    myWindow=window.open('','');
-                    myWindow.document.write(data);
-                }
-            };
-          }
+    <!-- 自定义命令按钮执行后，通过下面的代码展示执行结果 -->
+    <script>
+            function showResult(result){
+                // alert('执行成功!');
+                var httpRequest = new XMLHttpRequest();
+                httpRequest.open('POST', '/result', true); 
+                httpRequest.setRequestHeader("Content-type","application/x-www-form-urlencoded");
+                httpRequest.send('result='+result);
+                //获取数据后的处理程序
+                httpRequest.onreadystatechange = function () {//请求后的回调接口，可将请求成功后要执行的程序写在其中
+                    if (httpRequest.readyState == 4 && httpRequest.status == 200) {//验证请求是否发送成功
+                        var data = httpRequest.responseText;//获取到服务端返回的数据
+                        myWindow=window.open('','');
+                        myWindow.document.write(data);
+                    }
+                };
+            }
 
-  </script>
+    </script>
 
     <!-- 动态菜单 -->
     <!-- 隐藏域数据 -->

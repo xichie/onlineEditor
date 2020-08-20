@@ -8,3 +8,10 @@ Open the web:
 http://115.25.138.245:8000
 -------------------------------------------
 Press CTRL+C to exit.
+fpowertool/web.sh: line 37:  2474 Killed                  python -m http.server
+[H[2J[3JYou can also run: fpowertool/web.sh datafilename
+Open the web:
+http://115.25.138.245:8000
+-------------------------------------------
+Press CTRL+C to exit.
+fpowertool/web.sh: line 37:   237 Killed                  python -m http.server
