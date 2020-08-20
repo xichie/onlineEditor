@@ -261,7 +261,15 @@
             ["button", {
                 ref: "showPerfResult",
                 onclick: function() {
-                    myWindow=window.open('http://127.0.0.1:8000/perftreegrid.html?file=treegridPerfData20200701.0026','');  // 打开显示结果页面
+                    $.ajax({
+                        url:'config.json',
+                        cache:false,      // 设置不缓存，避免读取错误
+                        success:function(config){
+                            alert(config['host']);
+                            host=config['host'];
+                            myWindow=window.open("http://" + host + ':8000/perftreegrid.html?file=treegridPerfData20200701.0026','');  // 打开显示结果页面
+                        }
+                    })
                 }
             }, "显示Perf结果"],
         ], document.body, refs);  
