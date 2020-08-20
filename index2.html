@@ -398,15 +398,16 @@
     </script>
 
     <!-- 动态菜单 -->
-    <!-- 隐藏域数据 -->
+    <!-- 隐藏域数据, 保存自定义菜单对应的名称 -->
     <div id='btn_vals' class="form-group" style="display: none;">{{btn_vals}}</div>
+    <!-- 隐藏域数据, 保存配置文件是否有错误的信息 -->
     <div id='error' class="form-group" style="display: none;">{{error}}</div>   
     <script>
         function load_btn(){
             //可以用cookie或session从后台获取配置文件中的数据，目前只需要option的名称
             // var btn_vals = unescape($.cookie("btn_val"));
             var error = $("#error").text();
-            if(error != ""){
+            if(error != ""){    // 如果配置文件有错误，提示错误
                 alert(error);
             }
             var btn_vals = $("#btn_vals").text();
