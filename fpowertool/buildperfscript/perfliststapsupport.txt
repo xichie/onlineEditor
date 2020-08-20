@@ -1,0 +1,15 @@
+perf.hw.branch_instructions branch_instructions
+perf.hw.branch_misses branch_misses
+perf.hw.cache_misses cache_misses
+perf.hw.cache_references cache_references
+perf.hw.cpu_cycles cpu_cycles
+perf.hw.instructions instructions
+perf.sw.alignment_faults alignment_faults
+perf.sw.context_switches context_switches
+perf.sw.cpu_clock cpu_clock
+perf.sw.cpu_migrations cpu_migrations
+perf.sw.emulation_faults emulation_faults
+perf.sw.page_faults page_faults
+perf.sw.page_faults_maj page_faults_maj
+perf.sw.page_faults_min page_faults_min
+perf.sw.task_clock task_clock
