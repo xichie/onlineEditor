@@ -61,13 +61,14 @@ def index():
     res_json = json.dumps(jsonData)
     try:
         selects = get_config()   # 获取按钮的名称
-    except:
-        resp = make_response(render_template('index2.html', cur_path=WORK_PATH, data=res_json, error="配置错误!"))
+        resp = make_response(render_template('index2.html', cur_path=WORK_PATH, data=res_json, selects=json.dumps(selects)))
+        resp.set_cookie("cur_path", WORK_PATH) # 当前所在的目录，默认为files
+        # resp.set_cookie("btn_val", ",".join(btn_val))
         return resp
-    resp = make_response(render_template('index2.html', cur_path=WORK_PATH, data=res_json, selects=json.dumps(selects)))
-    resp.set_cookie("cur_path", WORK_PATH) # 当前所在的目录，默认为files
-    # resp.set_cookie("btn_val", ",".join(btn_val))
-    return resp
+    except:
+        resp = make_response(render_template('index2.html', cur_path=WORK_PATH, data=res_json, error="获取配置文件信息错误!"))
+        return resp
+  
 
 
 @socketio.on("pty-input", namespace="/pty")
@@ -256,6 +257,58 @@ def get_config():
         options = dict(config[section])
         d[section] = options
     return d
+
+'''
+    配置菜单共能
+'''
+@app.route('/config', methods=['post'])
+def config_func():
+    btn_id = request.form['btn_id']
+    # print(btn_id)
+    if btn_id == '1': # 运行配置
+        path = 'conf.ini'
+        try:
+            with open(path, 'r') as f:
+                code = f.read()
+        except:
+            code = ''
+            path = '未找到文件！'
+        # 保存路径到cookie
+        data = {
+            'code': code,
+
+        }
+        resp = make_response(data)
+        resp.set_cookie("file_path", path, max_age=3600)
+        return resp
+    elif btn_id == '2': # 菜单配置, 打开config.ini文件
+        path = 'config.ini'
+        try:
+            with open(path, 'r') as f:
+                code = f.read()
+        except:
+            code = ''
+            path = '未找到文件！'
+        # 保存路径到cookie
+        data = {
+            'code': code,
+        }
+        resp = make_response(data)
+        resp.set_cookie("file_path", path, max_age=3600)
+        return resp
+    elif btn_id == '3': # 生成菜单
+        data = {
+            'code': "refresh"
+        }
+        resp = make_response(data)
+        return resp
+    else:
+        data = {
+            'error': "btn_error!"
+        }
+        resp = make_response(data)
+        return resp
+ 
 
 '''
     程序入口函数
