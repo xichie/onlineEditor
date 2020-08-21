@@ -252,7 +252,7 @@ def get_config():
     d = {}
     config.read("config.ini")
     sections = config.sections()
-    for section in sections[1:]:
+    for section in sections:
         options = dict(config[section])
         d[section] = options
     return d
@@ -270,6 +270,7 @@ def main():
         formatter_class=argparse.ArgumentDefaultsHelpFormatter,
     )
     parser.add_argument("-w", "--workspace", default=WORK_PATH, help="workspace path, dont end with \'\\' or other character, defalut is your current path ")
+    parser.add_argument("--host", default='127.0.0.1', help="ip address")
     parser.add_argument("-p", "--port", default=2000, help="port to run server on")
     parser.add_argument("--debug", action="store_true", help="debug the server")
     parser.add_argument("--version", action="store_true", help="print version and exit")
@@ -290,7 +291,8 @@ def main():
     config = configparser.ConfigParser()        
     config.read("config.ini")
     
-    print("serving on http://" + config['HOST']['ADRESS'] + ":" + str(args.port))
+    # print("serving on http://" + config['HOST']['ADDRESS'] + ":" + str(args.port))
+    print("serving on http://" + str(args.host) + ":" + str(args.port))
     app.config["cmd"] = [args.command] + shlex.split(args.cmd_args)
     socketio.run(app, host='0.0.0.0', debug=args.debug, port=int(args.port))
     

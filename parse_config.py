@@ -33,7 +33,13 @@ def get_config():
         options = dict(config[section])
         d[section] = options
     return d
+
    
 if __name__ == "__main__":
    d = get_config()
-   print(d)
+#    print(d)
+   import socket
+   hostname=socket.gethostname()
+   #获取本机IP
+   ip=socket.gethostbyname(hostname)
+   print(ip)
