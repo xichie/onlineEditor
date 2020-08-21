@@ -22,17 +22,18 @@
 
 
 import json
+import configparser
 
-def get_button_num():
-    with open('./config.json','r',encoding='utf-8')as f:  # 加载json配置文件
-        config = json.load(f)
-    config = dict(config["option"])
-    # btn_num = len(list(config.keys()))
-    values = []
-    for key in config.keys():
-        values.append(config[key]['value'])
-    return values
-
+def get_config():
+    config = configparser.ConfigParser()
+    d = {}
+    config.read("config.ini")
+    sections = config.sections()
+    for section in sections:
+        options = dict(config[section])
+        d[section] = options
+    return d
+   
 if __name__ == "__main__":
-    btn_num = get_button_num()
-    print(btn_num)
+   d = get_config()
+   print(d)

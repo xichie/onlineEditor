@@ -15,6 +15,7 @@
     <script type="text/javascript" src="./static/dtree/layui/layui.js"></script> 
     <script type="text/javascript" src="./static/js/jquery-1.8.3.js"></script>
     <script src="./static/js/jquery.cookie.min.js"></script>
+ 
 
   <head>
     <meta charset="utf-8">
@@ -45,7 +46,35 @@
             $("#terminal").css("float","left");
             $("#terminal").css("width","79%");
             $("#terminal").css("height","40%");
+            
             load_btn();  // 动态加载按钮
+            // 绑定按钮事件
+            $(".self_select").change(function(){
+                    var opt=$(this);
+                    opt_val = opt.find("option:selected").text();      // 获取选择option的索引值，从1开始
+                    file_path = $.cookie('file_path') // 获取当前打开文件路径
+                    $.ajax({
+
+                        url:"/execute",
+                        type:"post",
+                        data:{
+                            'file_path': file_path,
+                            'content': "",
+                            'section': $(this).attr('id'),
+                            'opt_val': opt_val,  
+                        },
+                        success: function(result){
+                            // showResult(result);   // 得到执行结果跳转
+                            alert(result);
+                        },
+                        error:function(){
+                            // alert('没有返回值或执行异常!');
+                            alert(result);
+                        }
+                    });
+                    $(this).val("default");   // 设置select显示为默认值
+                }   
+            )
       })
     </script>
     <!-- 编辑器样式 -->
@@ -163,7 +192,7 @@
             exec: save,
             bindKey: { win: "ctrl-s", mac: "cmd-s" }
         });
-        buildDom(["div", { class: "toolbar"},
+        buildDom(["div", {class: "toolbar"},
             //  设置新建文件按钮
             ["button", {
                 ref: "newFile",
@@ -232,7 +261,7 @@
                         // dataType:"HEAD",      //服务器返回的数据类型
                         type: "post",
                         data:{
-                            'path':"config.json"
+                            'path':"config.ini"
                         },
                         success:function(xhr){
                             code =  xhr['code'];
@@ -247,56 +276,7 @@
                     })
                 }
             }, "配置"],
-            // 下拉菜单
-            ["select", {id:"myselect"},
-                ["option",{style:"display:none" ,value:"default"},  "自定义命令"],  
-                // ["option", "命令1"],
-                // ["option", "命令2"],
-                // ["option", "Perf1"],
-                // ["option", "Perf2"],
-                // ["option", "Perf3"],
-                // *******************在这里添加执行自定义命令的按钮*******************
-            ],
-            // 显示结果
-            ["button", {
-                ref: "showPerfResult",
-                onclick: function() {
-                    $.ajax({
-                        url:'config.json',
-                        cache:false,      // 设置不缓存，避免读取错误
-                        success:function(config){
-                            alert(config['host']);
-                            host=config['host'];
-                            myWindow=window.open("http://" + host + ':8000/perftreegrid.html?file=treegridPerfData20200701.0026','');  // 打开显示结果页面
-                        }
-                    })
-                }
-            }, "显示Perf结果"],
         ], document.body, refs);  
-        // 下拉菜单按钮点击事件
-        $("#myselect").change(function(){
-            var opt=$("#myselect");
-            btn_id = opt.get(0).selectedIndex;      // 获取选择option的索引值，从1开始
-            file_path = $.cookie('file_path') // 获取当前打开文件路径
-            $.ajax({
-                url:"/execute",
-                type:"post",
-                data:{
-                    'file_path': file_path,
-                    'content': "",
-                    'btn_id': btn_id,   // 必须唯一
-                },
-                success: function(result){
-                    // showResult(result);   // 得到执行结果跳转
-                    alert(result);
-                },
-                error:function(){
-                    // alert('没有返回值或执行异常!');
-                    alert(result);
-                }
-            });
-            $("#myselect").val("default");   // 设置select显示为默认值
-        });
         // 保存编辑后的代码
         function saveFile() {
         var code = editor.getValue();
@@ -316,7 +296,6 @@
             }
         })
         }
-        // window.editor = editor;
     </script>
     <!-- 编辑器部分结束 -->
     
@@ -386,7 +365,7 @@
       <!-- 终端部分结束 -->
  
     <!-- 自定义命令按钮执行后，通过下面的代码展示执行结果 -->
-    <script>
+    <!-- <script>
             function showResult(result){
                 // alert('执行成功!');
                 var httpRequest = new XMLHttpRequest();
@@ -403,30 +382,48 @@
                 };
             }
 
-    </script>
+    </script> -->
 
     <!-- 动态菜单 -->
     <!-- 隐藏域数据, 保存自定义菜单对应的名称 -->
-    <div id='btn_vals' class="form-group" style="display: none;">{{btn_vals}}</div>
+    <div id='selects' class="form-group" style="display: none;">{{selects}}</div>
     <!-- 隐藏域数据, 保存配置文件是否有错误的信息 -->
     <div id='error' class="form-group" style="display: none;">{{error}}</div>   
     <script>
         function load_btn(){
             //可以用cookie或session从后台获取配置文件中的数据，目前只需要option的名称
-            // var btn_vals = unescape($.cookie("btn_val"));
+            var toolbar =document.getElementsByClassName("toolbar")[0];
             var error = $("#error").text();
             if(error != ""){    // 如果配置文件有错误，提示错误
                 alert(error);
             }
-            var btn_vals = $("#btn_vals").text();
-            // alert(btn_vals);
-            var btn_array = btn_vals.split(",");
-            var myselect =document.getElementById("myselect");
-            for(var i = 0; i < btn_array.length; i++){
-                var option =document.createElement("option");
-                option.innerHTML=btn_array[i];
-                myselect.appendChild(option);
+            var selects = $("#selects").text();
+            // alert(selects);
+            config =  JSON.parse(selects);
+            // alert(eval(config_json['profiling']['command1']));
+            for(var key1 in config){
+                var select =document.createElement("select");
+                $(select).attr("class", "self_select");
+                $(select).attr("id", key1);
+                toolbar.appendChild(select);
+                option = document.createElement("option");
+                option.innerHTML=key1;
+                $(option).css("display","none");
+                $(option).css("value","default");
+                select.appendChild(option);
+                for(var key2 in config[key1]){
+                    option = document.createElement("option");
+                    option.innerHTML=key2;
+                    select.appendChild(option);
+                }
             }
+            // var toolbar =document.getElementsByClassName("toolbar")[0];
+            // for(var i = 0; i < selects_arr.length; i++){
+            //     var select =document.createElement("select");
+                
+            //     select.innerHTML=selects_arr[i];
+            //     toolbar.appendChild(select);
+            // }
         };
     </script>
 

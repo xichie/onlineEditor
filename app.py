@@ -13,6 +13,7 @@ import struct
 import fcntl
 import shlex
 import json
+import configparser
 
 __version__ = "0.4.0.1"
 
@@ -59,11 +60,11 @@ def index():
     get_pathTree(WORK_PATH, jsonData['data'][0]['children'], parentId='0')
     res_json = json.dumps(jsonData)
     try:
-        btn_val = get_btn_value()   # 获取按钮的名称
+        selects = get_config()   # 获取按钮的名称
     except:
         resp = make_response(render_template('index2.html', cur_path=WORK_PATH, data=res_json, error="配置错误!"))
         return resp
-    resp = make_response(render_template('index2.html', cur_path=WORK_PATH, data=res_json, btn_vals=",".join(btn_val)))
+    resp = make_response(render_template('index2.html', cur_path=WORK_PATH, data=res_json, selects=json.dumps(selects)))
     resp.set_cookie("cur_path", WORK_PATH) # 当前所在的目录，默认为files
     # resp.set_cookie("btn_val", ",".join(btn_val))
     return resp
@@ -209,19 +210,23 @@ def get_pathTree(path, jsonData, parentId):
             node['basicData'] = sub_path
             jsonData.append(node)
 
-
 """
     执行自定义命令
 """
 @app.route('/execute', methods=['post'])
 def execute():
     try:
-        with open('./config.json','r',encoding='utf8')as f:  # 加载json配置文件
-            config = json.load(f)  
-        config = config['options']               
-        btn_id = request.form['btn_id']   # 获取按钮id
-        shell = config[btn_id]['command']  # 根据id找到对应的命令
+        config = configparser.ConfigParser()
+        d = {}
+        config.read("config.ini") 
+
+        option = request.form['opt_val']   # 获取按钮
+        section = request.form['section']
+        print(option)
+        print(section)
+        shell = config[section][option]  # 根据id找到对应的命令
         shell += "\n"
+        print(shell)
         # result = subprocess.check_output(shell, shell=True) # 执行shell， 默认为当前的工作目录
         # result = str(result, encoding = "GB2312")  # shell的结果解码
         os.write(app.config["fd"], shell.encode())   # 在webshell中执行命令，并展示结果
@@ -240,16 +245,17 @@ def showResult():
     return resp
 
 '''
-    获取配置文件信息：按钮名称
+    获取配置文件信息
 '''
-def get_btn_value():
-    with open('./config.json','r',encoding='utf-8')as f:  # 加载json配置文件
-        config = json.load(f)
-    config = dict(config["options"])
-    values = []
-    for key in config.keys():
-        values.append(config[key]['value'])
-    return values
+def get_config():
+    config = configparser.ConfigParser()
+    d = {}
+    config.read("config.ini")
+    sections = config.sections()
+    for section in sections[1:]:
+        options = dict(config[section])
+        d[section] = options
+    return d
 
 '''
     程序入口函数
@@ -280,10 +286,11 @@ def main():
     if args.version:
         print(__version__)
         exit(0)
-    with open('./config.json','r',encoding='utf8')as f:  # 加载json配置文件
-            config = json.load(f)
+
+    config = configparser.ConfigParser()        
+    config.read("config.ini")
     
-    print("serving on http://" + config["host"] + ":" + str(args.port))
+    print("serving on http://" + config['Executable']['HOST'] + ":" + str(args.port))
     app.config["cmd"] = [args.command] + shlex.split(args.cmd_args)
     socketio.run(app, host='0.0.0.0', debug=args.debug, port=int(args.port))
     
