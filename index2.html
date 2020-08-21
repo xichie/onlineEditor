@@ -24,6 +24,8 @@
     <!-- 编辑器位置调整 -->
     <script>
       $(function(){
+            $.cookie('file_path', ""); //清除cookie，防止保存出错
+            $("#openPath").text("");  // 
             $("#editor").insertAfter($(".toolbar"));    // 将toolbar部分放到editor部分前显示
             $(".drag").insertAfter($("#editor")); 
             $("#top").css('width', "100%");
@@ -132,7 +134,7 @@
                             // dataType:"HEAD",      //服务器返回的数据类型
                             type: "post",
                             data:{
-                            'path':file_path
+                                'path':file_path
                             },
                             success:function(xhr){
                             code =  xhr['code'];
@@ -274,7 +276,7 @@
             alert('保存成功!');
             },
             error:function(){
-            alert('保存失败!');
+            alert('请选择文件!');
             }
         })
         }
@@ -298,6 +300,8 @@
                     code =  xhr['code'];
                     code = String(code);
                     if(code == "refresh"){
+                        $.cookie('file_path', ""); 
+                        $("#openPath").text("");
                         window.location.reload();
                     }else{
                         editor.setValue(code);

@@ -144,7 +144,7 @@ def createFile():
 def showContent():
     path = request.form['path'] 
     cur_path = request.cookies.get('cur_path') # 获取当前所在的目录
-    result = request.cookies.get('result') # 获取result
+    # result = request.cookies.get('result') # 获取result
     try:
         with open(path, 'r') as f:
             code = f.read()
@@ -155,7 +155,7 @@ def showContent():
     data = {
         'code': code,
         'file_path': path,
-        'result': result,
+        # 'result': result,
         'cur_path': cur_path,
     }
     resp = make_response(data)
@@ -171,6 +171,7 @@ def saveContent():
     content = request.form['content']  # 获取保存的内容
     file_path = request.cookies.get('file_path') # 获取文件路径
     result = request.cookies.get('result') # 获取result
+    print(file_path)
     #newline参数必须加上，防止出现空行
     with open(file_path, 'w+', newline='') as f:   
         f.writelines(content)
