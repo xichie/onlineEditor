@@ -290,7 +290,7 @@ def main():
     config = configparser.ConfigParser()        
     config.read("config.ini")
     
-    print("serving on http://" + config['Executable']['HOST'] + ":" + str(args.port))
+    print("serving on http://" + config['HOST']['ADRESS'] + ":" + str(args.port))
     app.config["cmd"] = [args.command] + shlex.split(args.cmd_args)
     socketio.run(app, host='0.0.0.0', debug=args.debug, port=int(args.port))
     
