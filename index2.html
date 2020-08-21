@@ -301,8 +301,9 @@
                         window.location.reload();
                     }else{
                         editor.setValue(code);
+                        
                         // alert(String(xhr['file_path']));
-                        $("#openPath").text("config.ini");     
+                        $("#openPath").text(String(xhr['file_path']));     
                     }
                 },
                 error:function(){

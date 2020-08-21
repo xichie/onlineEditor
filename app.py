@@ -276,7 +276,7 @@ def config_func():
         # 保存路径到cookie
         data = {
             'code': code,
-
+            'file_path': path
         }
         resp = make_response(data)
         resp.set_cookie("file_path", path, max_age=3600)
@@ -292,13 +292,14 @@ def config_func():
         # 保存路径到cookie
         data = {
             'code': code,
+            'file_path': path
         }
         resp = make_response(data)
         resp.set_cookie("file_path", path, max_age=3600)
         return resp
     elif btn_id == '3': # 生成菜单
         data = {
-            'code': "refresh"
+            'code': "refresh",
         }
         resp = make_response(data)
         return resp
