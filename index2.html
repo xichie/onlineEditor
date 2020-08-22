@@ -48,20 +48,42 @@
             $("#terminal").css("float","left");
             $("#terminal").css("width","79%");
             $("#terminal").css("height","40%");
-            
+            load_run_menu();
             load_btn();  // 动态加载按钮
-            // 绑定按钮事件
-            $(".self_select").change(function(){
+            // run菜单绑定按钮事件
+            $(".run_menu").change(function(){
                     var opt=$(this);
                     opt_val = opt.find("option:selected").text();      // 获取选择option的索引值，从1开始
-                    file_path = $.cookie('file_path') // 获取当前打开文件路径
+                    cur_path = $.cookie("cur_path")   // 获取当前的工作跟目录，得到当前项目下的运行配置路径（不包括文件名）
                     $.ajax({
-
                         url:"/execute",
                         type:"post",
                         data:{
-                            'file_path': file_path,
-                            'content': "",
+                            'config_path': cur_path + "/conf.ini",  // conf.ini为运行配置文件名称
+                            'section': $(this).attr('id'),
+                            'opt_val': opt_val,  
+                        },
+                        success: function(result){
+                            // showResult(result);   // 得到执行结果跳转
+                            alert(result);
+                        },
+                        error:function(){
+                            // alert('没有返回值或执行异常!');
+                            alert(result);
+                        }
+                    });
+                    $(this).val("default");   // 设置select显示为默认值
+                }   
+            )
+            // 自定义菜单绑定按钮事件
+            $(".self_select").change(function(){
+                    var opt=$(this);
+                    opt_val = opt.find("option:selected").text();      // 获取选择option的索引值，从1开始
+                    $.ajax({
+                        url:"/execute",
+                        type:"post",
+                        data:{
+                            'config_path':"config.ini",  
                             'section': $(this).attr('id'),
                             'opt_val': opt_val,  
                         },
@@ -316,6 +338,7 @@
             });
             $("#config").val("default");   // 设置select显示为默认值
         });
+
     </script>
     <!-- 编辑器部分结束 -->
     
@@ -407,8 +430,32 @@
     <!-- 动态菜单 -->
     <!-- 隐藏域数据, 保存自定义菜单对应的名称 -->
     <div id='selects' class="form-group" style="display: none;">{{selects}}</div>
+    <div id='run_menu_info' class="form-group" style="display: none;">{{run_menu}}</div>
     <!-- 隐藏域数据, 保存配置文件是否有错误的信息 -->
     <div id='error' class="form-group" style="display: none;">{{error}}</div>   
+    <script>
+        function load_run_menu(){
+            var toolbar =document.getElementsByClassName("toolbar")[0];
+            var run_menu_info = $("#run_menu_info").text();
+            config =  JSON.parse(run_menu_info);
+            for(var key1 in config){
+                var select =document.createElement("select");
+                $(select).attr("class", "run_menu");
+                $(select).attr("id", key1);
+                toolbar.appendChild(select);
+                option = document.createElement("option");
+                option.innerHTML="Run";
+                $(option).css("display","none");
+                $(option).css("value","default");
+                select.appendChild(option);
+                for(var key2 in config[key1]){
+                    option = document.createElement("option");
+                    option.innerHTML=key2;
+                    select.appendChild(option);
+                }
+            }
+        };
+    </script>
     <script>
         function load_btn(){
             //可以用cookie或session从后台获取配置文件中的数据，目前只需要option的名称
@@ -437,13 +484,6 @@
                     select.appendChild(option);
                 }
             }
-            // var toolbar =document.getElementsByClassName("toolbar")[0];
-            // for(var i = 0; i < selects_arr.length; i++){
-            //     var select =document.createElement("select");
-                
-            //     select.innerHTML=selects_arr[i];
-            //     toolbar.appendChild(select);
-            // }
         };
     </script>
 

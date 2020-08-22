@@ -49,27 +49,6 @@ def read_and_forward_pty_output():
                 #print(  output   )
                 socketio.emit("pty-output", {"output": output}, namespace="/pty")
 
-@app.route("/")
-def index():
-    global WORK_PATH
-    jsonData = {
-        "data": [
-            {"id":"1","title": os.path.split(WORK_PATH)[1], "parentId":"0", "children":[]},
-        ]
-    }
-    get_pathTree(WORK_PATH, jsonData['data'][0]['children'], parentId='0')
-    res_json = json.dumps(jsonData)
-    try:
-        selects = get_config()   # 获取按钮的名称
-        resp = make_response(render_template('index2.html', cur_path=WORK_PATH, data=res_json, selects=json.dumps(selects)))
-        resp.set_cookie("cur_path", WORK_PATH) # 当前所在的目录，默认为files
-        # resp.set_cookie("btn_val", ",".join(btn_val))
-        return resp
-    except:
-        resp = make_response(render_template('index2.html', cur_path=WORK_PATH, data=res_json, error="获取配置文件信息错误!"))
-        return resp
-  
-
 
 @socketio.on("pty-input", namespace="/pty")
 def pty_input(data):
@@ -78,7 +57,6 @@ def pty_input(data):
     """
     if app.config["fd"]:
         print("writing to ptd: %s" % data["input"])
-        #print(app.config["fd"])
         # os.write(app.config["fd"], 'ls\n'.encode() )     # 本行代码可以再webshell里运行ls命令
         os.write(app.config["fd"], data["input"].encode())
 
@@ -108,7 +86,7 @@ def connect():
         # store child fd and pid
         app.config["fd"] = fd
         app.config["child_pid"] = child_pid
-        set_winsize(fd, 50, 50)
+        # set_winsize(fd, 50, 50)
         cmd = " ".join(shlex.quote(c) for c in app.config["cmd"])
         print("child pid is", child_pid)
         print(
@@ -117,6 +95,30 @@ def connect():
         )
         socketio.start_background_task(target=read_and_forward_pty_output)
         print("task started")
+
+'''
+    起始页面
+'''
+@app.route("/")
+def index():
+    global WORK_PATH
+    jsonData = {
+        "data": [
+            {"id":"1","title": os.path.split(WORK_PATH)[1], "parentId":"0", "children":[]},
+        ]
+    }
+    get_pathTree(WORK_PATH, jsonData['data'][0]['children'], parentId='0')
+    res_json = json.dumps(jsonData)
+    try:
+        selects = get_config()   # 获取自定义菜单配置信息
+        run_conf = get_conf() #获取运行菜单配置信息 
+        resp = make_response(render_template('index2.html', cur_path=WORK_PATH, data=res_json, selects=json.dumps(selects), run_menu=json.dumps(run_conf)))
+        resp.set_cookie("cur_path", WORK_PATH) # 当前所在的目录，默认为files
+        # resp.set_cookie("btn_val", ",".join(btn_val))
+        return resp
+    except:
+        resp = make_response(render_template('index2.html', cur_path=WORK_PATH, data=res_json, error="获取配置文件信息错误!"))
+        return resp
 
 '''
     新建文件
@@ -218,17 +220,19 @@ def get_pathTree(path, jsonData, parentId):
 @app.route('/execute', methods=['post'])
 def execute():
     try:
+        config_path = request.form['config_path']
         config = configparser.ConfigParser()
-        d = {}
-        config.read("config.ini") 
+        if(not os.path.exists(config_path)):
+            with open(config_path, "w+") as f:
+                f.write("[Executable] \r\n")
+                f.write("Executable file= \r\n")
+                f.write("Executable args= \r\n")
 
+        config.read(config_path) 
         option = request.form['opt_val']   # 获取按钮
         section = request.form['section']
-        print(option)
-        print(section)
         shell = config[section][option]  # 根据id找到对应的命令
         shell += "\n"
-        print(shell)
         # result = subprocess.check_output(shell, shell=True) # 执行shell， 默认为当前的工作目录
         # result = str(result, encoding = "GB2312")  # shell的结果解码
         os.write(app.config["fd"], shell.encode())   # 在webshell中执行命令，并展示结果
@@ -247,7 +251,7 @@ def showResult():
     return resp
 
 '''
-    获取配置文件信息
+    获取菜单配置
 '''
 def get_config():
     config = configparser.ConfigParser()
@@ -260,7 +264,21 @@ def get_config():
     return d
 
 '''
-    配置菜单共能
+    获取运行菜单配置
+'''
+def get_conf():
+    conf = configparser.ConfigParser()
+    d = {}
+    conf.read("conf.ini")
+    sections = conf.sections()
+    for section in sections:
+        options = dict(conf[section])
+        d[section] = options
+    return d
+
+
+'''
+    配置菜单功能
 '''
 @app.route('/config', methods=['post'])
 def config_func():
@@ -343,10 +361,6 @@ def main():
         print(__version__)
         exit(0)
 
-    config = configparser.ConfigParser()        
-    config.read("config.ini")
-    
-    # print("serving on http://" + config['HOST']['ADDRESS'] + ":" + str(args.port))
     print("serving on http://" + str(args.host) + ":" + str(args.port))
     app.config["cmd"] = [args.command] + shlex.split(args.cmd_args)
     socketio.run(app, host='0.0.0.0', debug=args.debug, port=int(args.port))
