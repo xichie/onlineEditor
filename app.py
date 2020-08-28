@@ -276,7 +276,6 @@ def get_conf():
         d[section] = options
     return d
 
-
 '''
     配置菜单功能
 '''
@@ -329,7 +328,6 @@ def config_func():
         resp = make_response(data)
         return resp
  
-
 '''
     程序入口函数
 '''
