@@ -26,6 +26,8 @@ socketio = SocketIO(app)
 id = 2   # 文件树节点id
 
 WORK_PATH = os.getcwd()    # 末尾不能有"/"
+ROOT_PATH = app.root_path
+
 
 '''
     terminal size
@@ -114,6 +116,7 @@ def index():
         run_conf = get_conf() #获取运行菜单配置信息 
         resp = make_response(render_template('index2.html', cur_path=WORK_PATH, data=res_json, selects=json.dumps(selects), run_menu=json.dumps(run_conf)))
         resp.set_cookie("cur_path", WORK_PATH) # 当前所在的目录，默认为files
+        resp.set_cookie("root_path", ROOT_PATH) # 项目根目录
         # resp.set_cookie("btn_val", ",".join(btn_val))
         return resp
     except:
@@ -222,21 +225,20 @@ def execute():
     try:
         config_path = request.form['config_path']
         config = configparser.ConfigParser()
-        if(not os.path.exists(config_path)):
-            with open(config_path, "w+") as f:
-                f.write("[Executable] \r\n")
-                f.write("Executable file= \r\n")
-                f.write("Executable args= \r\n")
-
         config.read(config_path) 
+
         option = request.form['opt_val']   # 获取按钮
         section = request.form['section']
-        shell = config[section][option]  # 根据id找到对应的命令
-        shell += "\n"
-        # result = subprocess.check_output(shell, shell=True) # 执行shell， 默认为当前的工作目录
-        # result = str(result, encoding = "GB2312")  # shell的结果解码
-        os.write(app.config["fd"], shell.encode())   # 在webshell中执行命令，并展示结果
-        return "success!"
+        if(section == 'result'):            # 显示结果按钮
+            result_file = config[section][option] # 找到fpowertool执行结果的文件名
+            return result_file
+        else:
+            shell = config[section][option]  # 根据id找到对应的命令
+            shell += "\n"
+            # result = subprocess.check_output(shell, shell=True) # 执行shell， 默认为当前的工作目录
+            # result = str(result, encoding = "GB2312")  # shell的结果解码
+            os.write(app.config["fd"], shell.encode())   # 在webshell中执行命令，并展示结果
+            return "success!"
     except:
         return "执行异常"
 
@@ -256,7 +258,7 @@ def showResult():
 def get_config():
     config = configparser.ConfigParser()
     d = {}
-    config.read("config.ini")
+    config.read(ROOT_PATH+ "/config.ini")
     sections = config.sections()
     for section in sections:
         options = dict(config[section])
@@ -269,7 +271,7 @@ def get_config():
 def get_conf():
     conf = configparser.ConfigParser()
     d = {}
-    conf.read("conf.ini")
+    conf.read(WORK_PATH + "/conf.ini")
     sections = conf.sections()
     for section in sections:
         options = dict(conf[section])
@@ -282,9 +284,15 @@ def get_conf():
 @app.route('/config', methods=['post'])
 def config_func():
     btn_id = request.form['btn_id']
+    cur_path = request.form['cur_path']
     # print(btn_id)
     if btn_id == '1': # 运行配置
-        path = 'conf.ini'
+        path = cur_path + '/conf.ini'
+        if(not os.path.exists(path)):
+            with open(path, "w+") as f:
+                f.write("[Executable] \r\n")
+                f.write("Executable file= \r\n")
+                f.write("Executable args= \r\n")
         try:
             with open(path, 'r') as f:
                 code = f.read()
@@ -300,7 +308,7 @@ def config_func():
         resp.set_cookie("file_path", path, max_age=3600)
         return resp
     elif btn_id == '2': # 菜单配置, 打开config.ini文件
-        path = 'config.ini'
+        path = ROOT_PATH + '/config.ini'
         try:
             with open(path, 'r') as f:
                 code = f.read()
