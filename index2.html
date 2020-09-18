@@ -291,7 +291,7 @@
         // 保存编辑后的代码
         function saveFile() {
             var code = editor.getValue();
-            file_path = $.cookie('file_path')
+            file_path = $.cookie('file_path');
             alert(file_path)
             $.ajax({
                 url:"/save",
@@ -303,7 +303,8 @@
                 success:function(xhr){
                     alert('保存成功!');
                 },
-                error:function(){
+                error:function(info){
+                    alert(info);
                     alert('请选择文件!');
                 }
             })

@@ -52,7 +52,6 @@ def read_and_forward_pty_output():
                 #print(  output   )
                 socketio.emit("pty-output", {"output": output}, namespace="/pty")
 
-
 @socketio.on("pty-input", namespace="/pty")
 def pty_input(data):
     """write to the child pty. The pty sees this as if you are typing in a real
