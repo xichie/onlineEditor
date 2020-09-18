@@ -292,7 +292,7 @@
         function saveFile() {
             var code = editor.getValue();
             file_path = $.cookie('file_path');
-            alert(file_path)
+            // alert(file_path);
             $.ajax({
                 url:"/save",
                 type:"post",
@@ -300,11 +300,11 @@
                 'file_path': file_path,
                 'content': code
                 },
-                success:function(xhr){
+                success:function(){
                     alert('保存成功!');
                 },
                 error:function(info){
-                    alert(info);
+                    alert(info.responseText);
                     alert('请选择文件!');
                 }
             })
