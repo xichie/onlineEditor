@@ -292,6 +292,7 @@
         function saveFile() {
             var code = editor.getValue();
             file_path = $.cookie('file_path')
+            alert(file_path)
             $.ajax({
                 url:"/save",
                 type:"post",
