@@ -1,0 +1,18 @@
+#! /usr/bin/env stap
+
+function trace(entry_p, extra) {
+  %( $# > 1 %? if (tid() in trace) %)
+  printf("%ld %d %s\n",ettimeofday_us(),entry_p,ppfunc ()   )
+}
+
+
+%( $# > 1 %?
+global trace
+probe $2.call {
+  trace[tid()] = 1
+}
+probe $2.return {
+  delete trace[tid()]
+}
+%)
+		
