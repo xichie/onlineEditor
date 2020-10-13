@@ -14,7 +14,6 @@ import fcntl
 import shlex
 import json
 import configparser
-import logging
 
 __version__ = "0.4.0.1"
 
@@ -177,7 +176,7 @@ def saveContent():
     file_path = request.cookies.get('file_path') # 获取文件路径
     # result = request.cookies.get('result') # 获取result
     # print(file_path)
-    logging.info(file_path)
+
     #newline参数必须加上，防止出现空行
     with open(file_path, 'w+', newline='') as f:   
         f.writelines(content)
@@ -231,8 +230,9 @@ def execute():
         option = request.form['opt_val']   # 获取按钮
         section = request.form['section']
         if(section == 'result'):            # 显示结果按钮
-            result_file = config[section][option] # 找到fpowertool执行结果的文件名
-            return result_file
+            # result_file = config[section][option] # 找到fpowertool执行结果的文件名
+            last_perf_result_file = os.listdir("fpowertool/treegrid/data")[-1]  # 获取工具最后生成的结果， 目录可以根据工具更改
+            return last_perf_result_file
         else:
             shell = config[section][option]  # 根据id找到对应的命令
             shell += "\n"

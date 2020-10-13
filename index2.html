@@ -92,6 +92,7 @@
                             if(result != 'success' && opt_id=='2'){   // 跳转到展示结果的页面
                                 result_file = result
                                 var host= location.host;
+                                alert("最后的结果文件为："+ result_file);
                                 window.open("http://" + host + "/fpowertool/treegrid/perftreegrid2.html?file=" + result_file); 
                             }else{
                                 alert(result);
