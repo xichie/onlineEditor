@@ -231,7 +231,7 @@ def execute():
         section = request.form['section']
         if(section == 'result'):            # 显示结果按钮
             # result_file = config[section][option] # 找到fpowertool执行结果的文件名
-            last_perf_result_file = os.listdir("fpowertool/treegrid/data")[-1]  # 获取工具最后生成的结果， 目录可以根据工具更改
+            last_perf_result_file = os.listdir("fpowertool/perf_result")[-1]  # 获取工具最后生成的结果， 目录可以根据工具更改
             return last_perf_result_file
         else:
             shell = config[section][option]  # 根据id找到对应的命令

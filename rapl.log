@@ -1,0 +1,3 @@
+stap -v fnperf.stp 'process("./a.noo3")' -o fptfnperf.log &
+ps -ef | grep stap | grep -v grep | awk '{print $2}' | xargs kill -9 
+python /home/qjx/fpowertool/tools/processPerfdata2kexue.py fptfnperf.log
