@@ -99,7 +99,7 @@ def main(argv): #argv[1]
 	currenttime = time.strftime('%Y%m%d.%H%M',time.localtime(time.time()))
 	filename='treegridPerfData'+currenttime
 	print("Save result to file: "+filename) 
-	with open(os.path.join("fpowertool/treegrid/data",filename),'w') as fw:     # 展示结果文件的保存路径：fpowertool/treegrid/data
+	with open(os.path.join("/home/qjx/onlineEditor/perf_result",filename),'w') as fw:     # 展示结果文件的保存路径：fpowertool/treegrid/data
 		fw.writelines(['''{"total":'''+str(len(perfData))+''',"rows":['''])
 		fw.writelines(['\n'])
 		k=1
