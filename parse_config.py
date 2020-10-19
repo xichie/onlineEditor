@@ -34,7 +34,6 @@ def get_config():
         d[section] = options
     return d
 
-   
 if __name__ == "__main__":
    d = get_config()
 #    print(d)
